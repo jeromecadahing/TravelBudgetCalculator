@@ -320,10 +320,10 @@
                     <i data-lucide="list-checks" class="w-4 h-4"></i> What Budget Covers
                 </button>
                 <button onclick="setActiveTab('hotels')" id="tabBtn-hotels" class="tab-btn px-6 py-4 font-bold text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center gap-2 shrink-0">
-                    <i data-lucide="hotel" class="w-4 h-4"></i> Hotels & Stays
+                    <i data-lucide="hotel" class="w-4 h-4"></i> Hotels & Stays (10 Options)
                 </button>
                 <button onclick="setActiveTab('food')" id="tabBtn-food" class="tab-btn px-6 py-4 font-bold text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center gap-2 shrink-0">
-                    <i data-lucide="utensils" class="w-4 h-4"></i> Restaurants & Food
+                    <i data-lucide="utensils" class="w-4 h-4"></i> Restaurants & Food (10 Options)
                 </button>
                 <button onclick="setActiveTab('savings')" id="tabBtn-savings" class="tab-btn px-6 py-4 font-bold text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center gap-2 shrink-0">
                     <i data-lucide="piggy-bank" class="w-4 h-4"></i> Trip Savings Plan
@@ -383,13 +383,13 @@
                 <!-- TAB 2: HOTELS -->
                 <div id="tabContent-hotels" class="tab-content hidden space-y-6">
                     <div class="flex justify-between items-center">
-                        <h3 class="text-base font-bold text-slate-800">Hotels & Stays (Multi-Star Options)</h3>
+                        <h3 class="text-base font-bold text-slate-800">Hotels & Stays (10 Curated Options)</h3>
                         <button onclick="promptAddCustomHotel()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg border border-slate-300">
                             + Add Custom Stay
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="hotelOptionsGrid">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="hotelOptionsGrid">
                         <!-- Injected Hotel Cards -->
                     </div>
                 </div>
@@ -397,13 +397,13 @@
                 <!-- TAB 3: FOOD & DINING -->
                 <div id="tabContent-food" class="tab-content hidden space-y-6">
                     <div class="flex justify-between items-center">
-                        <h3 class="text-base font-bold text-slate-800">Dining Options & Local Eateries</h3>
+                        <h3 class="text-base font-bold text-slate-800">Dining Options & Eateries (10 Curated Options)</h3>
                         <button onclick="promptAddCustomDining()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg border border-slate-300">
                             + Add Custom Spot
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="diningOptionsGrid">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="diningOptionsGrid">
                         <!-- Injected Dining Cards -->
                     </div>
                 </div>
@@ -450,7 +450,7 @@
         const exchangeRates = { GBP: 1, USD: 1.28, EUR: 1.18, JPY: 198, AUD: 1.92, CAD: 1.74, INR: 106 };
         const currencySymbols = { GBP: '£', USD: '$', EUR: '€', JPY: '¥', AUD: 'A$', CAD: 'C$', INR: '₹' };
 
-        // City Database with Multi-Tier Hotels (1-5 Star Ratings) and Dining Options
+        // Comprehensive City Database with 10 Stays and 10 Dining Options Each
         let cityDatabase = {
             rome: {
                 name: 'Rome, Italy',
@@ -460,14 +460,28 @@
                 transit: 7,
                 activities: 16,
                 hotels: [
-                    { category: 'budget', name: "YellowSquare Rome", stars: 2, rating: "4.7 ★★★★★", type: "Budget Hostel", rate: 30, desc: "Fun social hostel near Termini with shared & private rooms." },
-                    { category: 'moderate', name: "Hotel Artemide", stars: 4, rating: "4.8 ★★★★★", type: "4★ Hotel", rate: 95, desc: "Comfortable 4-star central hotel with rooftop panoramic bar." },
-                    { category: 'luxury', name: "Hotel de la Ville", stars: 5, rating: "4.9 ★★★★★", type: "5★ Luxury", rate: 280, desc: "Ultra-luxury Rocco Forte hotel sitting atop Spanish Steps." }
+                    { category: 'budget', name: "YellowSquare Rome", stars: 2, rating: "4.7 ★★★★★", type: "Budget Hostel", rate: 30, desc: "Fun social hostel near Termini." },
+                    { category: 'budget', name: "The RomeHello", stars: 2, rating: "4.6 ★★★★★", type: "Budget Hostel", rate: 32, desc: "Modern design hostel with lively bar." },
+                    { category: 'budget', name: "Generator Rome", stars: 2, rating: "4.5 ★★★★☆", type: "Budget Stay", rate: 35, desc: "Stylish upscale hostel near Esquilino." },
+                    { category: 'budget', name: "Beehive Hotel & Hostel", stars: 2, rating: "4.7 ★★★★★", type: "Eco B&B", rate: 45, desc: "Cozy eco-friendly stay with organic cafe." },
+                    { category: 'moderate', name: "Hotel Artemide", stars: 4, rating: "4.8 ★★★★★", type: "4★ Hotel", rate: 95, desc: "Central hotel with rooftop bar." },
+                    { category: 'moderate', name: "IQ Hotel Roma", stars: 4, rating: "4.8 ★★★★★", type: "4★ Smart Hotel", rate: 105, desc: "High-tech smart hotel with rooftop terrace." },
+                    { category: 'moderate', name: "Hotel Nazionale", stars: 4, rating: "4.6 ★★★★★", type: "4★ Classic", rate: 115, desc: "Historic hotel near Parliament square." },
+                    { category: 'luxury', name: "Hotel de la Ville", stars: 5, rating: "4.9 ★★★★★", type: "5★ Luxury", rate: 280, desc: "Rocco Forte luxury above Spanish Steps." },
+                    { category: 'luxury', name: "The St. Regis Rome", stars: 5, rating: "4.9 ★★★★★", type: "5★ Palace", rate: 340, desc: "Opulent historic grand palace hotel." },
+                    { category: 'luxury', name: "Hotel Eden - Dorchester Collection", stars: 5, rating: "4.9 ★★★★★", type: "5★ Ultra-Luxury", rate: 380, desc: "Legendary luxury with Michelin dining." }
                 ],
                 dining: [
-                    { category: 'budget', name: "Trapizzino Testaccio", rating: "4.6 ★", type: "Street Food", price: 18, desc: "Famous Roman stuffed pizza pockets and suppli." },
-                    { category: 'moderate', name: "Trattoria da Enzo al 29", rating: "4.8 ★", type: "Local Trattoria", price: 40, desc: "Classic Roman pasta spot serving Cacio e Pepe in Trastevere." },
-                    { category: 'luxury', name: "La Pergola", rating: "4.9 ★", type: "3 Michelin Fine Dining", price: 95, desc: "Rome's legendary 3-star Michelin rooftop restaurant." }
+                    { category: 'budget', name: "Trapizzino Testaccio", rating: "4.6 ★", type: "Street Food", price: 15, desc: "Stuffed pizza pockets and suppli." },
+                    { category: 'budget', name: "Dar Filetto a Santa Barbara", rating: "4.7 ★", type: "Cheap Eats", price: 18, desc: "Famous fried salt cod near Campo de' Fiori." },
+                    { category: 'budget', name: "Bonci Pizzarium", rating: "4.8 ★", type: "Pizza Al Taglio", price: 20, desc: "World-famous gourmet pizza by the slice." },
+                    { category: 'budget', name: "Roscioli Salumeria con Cucina", rating: "4.7 ★", type: "Deli & Bakery", price: 25, desc: "Historic deli with legendary carbonara." },
+                    { category: 'moderate', name: "Trattoria da Enzo al 29", rating: "4.8 ★", type: "Trattoria", price: 40, desc: "Classic Roman pasta spot in Trastevere." },
+                    { category: 'moderate', name: "Flavio al Velavevodetto", rating: "4.7 ★", type: "Local Trattoria", price: 42, desc: "Authentic Roman dishes inside Monte Testaccio." },
+                    { category: 'moderate', name: "Armando al Pantheon", rating: "4.8 ★", type: "Historic Bistro", price: 45, desc: "Family-run trattoria steps from Pantheon." },
+                    { category: 'luxury', name: "La Pergola", rating: "4.9 ★", type: "3 Michelin", price: 95, desc: "Rome's legendary 3-star Michelin rooftop." },
+                    { category: 'luxury', name: "Il Convivio Troiani", rating: "4.8 ★", type: "Fine Dining", price: 85, desc: "Exquisite gourmet tasting menus." },
+                    { category: 'luxury', name: "Imàgo at Hotel Hassler", rating: "4.9 ★", type: "Michelin Star", price: 90, desc: "Breathtaking views atop Spanish Steps." }
                 ]
             },
             paris: {
@@ -478,14 +492,28 @@
                 transit: 10,
                 activities: 18,
                 hotels: [
-                    { category: 'budget', name: "St Christopher's Canal", stars: 2, rating: "4.4 ★★★★☆", type: "Hostel / Stay", rate: 35, desc: "Modern canal-side hostel near Gare du Nord." },
-                    { category: 'moderate', name: "CitizenM Gare de Lyon", stars: 4, rating: "4.7 ★★★★★", type: "4★ Hotel", rate: 110, desc: "Stylish design hotel with smart room controls." },
-                    { category: 'luxury', name: "Le Roch Hotel & Spa", stars: 5, rating: "4.9 ★★★★★", type: "5★ Luxury", rate: 320, desc: "Boutique 5-star luxury located near Place Vendôme." }
+                    { category: 'budget', name: "St Christopher's Canal", stars: 2, rating: "4.4 ★★★★☆", type: "Hostel", rate: 35, desc: "Modern canal-side hostel." },
+                    { category: 'budget', name: "The People - Paris Belleville", stars: 2, rating: "4.6 ★★★★★", type: "Eco Hostel", rate: 38, desc: "Trendy community hostel with rooftop." },
+                    { category: 'budget', name: "Generator Paris", stars: 2, rating: "4.3 ★★★★☆", type: "Design Hostel", rate: 40, desc: "Sleek design hostel near Canal Saint-Martin." },
+                    { category: 'budget', name: "MIJE Marais", stars: 2, rating: "4.5 ★★★★★", type: "Historic Stay", rate: 55, desc: "Charming historic 17th-century buildings." },
+                    { category: 'moderate', name: "CitizenM Gare de Lyon", stars: 4, rating: "4.7 ★★★★★", type: "4★ Hotel", rate: 110, desc: "Stylish design hotel with smart controls." },
+                    { category: 'moderate', name: "Hotel Caron de Beaumarchais", stars: 3, rating: "4.8 ★★★★★", type: "Boutique", rate: 125, desc: "Romantic 18th-century themed Marais hotel." },
+                    { category: 'moderate', name: "Grand Hotel du Palais Royal", stars: 5, rating: "4.8 ★★★★★", type: "Boutique 5★", rate: 220, desc: "Intimate luxury hotel near Louvre." },
+                    { category: 'luxury', name: "Le Roch Hotel & Spa", stars: 5, rating: "4.9 ★★★★★", type: "5★ Luxury", rate: 320, desc: "Boutique luxury near Place Vendôme." },
+                    { category: 'luxury', name: "Hôtel de Crillon", stars: 5, rating: "4.9 ★★★★★", type: "Palace Hotel", rate: 450, desc: "Legendary historic luxury palace on Place de la Concorde." },
+                    { category: 'luxury', name: "Ritz Paris", stars: 5, rating: "4.9 ★★★★★", type: "Iconic Palace", rate: 500, desc: "World-renowned epitome of French luxury." }
                 ],
                 dining: [
-                    { category: 'budget', name: "Marché des Enfants Rouges", rating: "4.6 ★", type: "Market Food", price: 20, desc: "Historic covered market with fresh street stalls." },
-                    { category: 'moderate', name: "Bouillon Chartier", rating: "4.5 ★", type: "Classic Bistro", price: 45, desc: "Classic historic French bistro with quick service." },
-                    { category: 'luxury', name: "Le Train Bleu", rating: "4.8 ★", type: "Fine Dining", price: 110, desc: "Opulent Belle Époque dining hall." }
+                    { category: 'budget', name: "Marché des Enfants Rouges", rating: "4.6 ★", type: "Market Food", price: 20, desc: "Historic covered market stalls." },
+                    { category: 'budget', name: "L'As du Fallafel", rating: "4.7 ★", type: "Street Food", price: 15, desc: "Legendary falafel pita in Le Marais." },
+                    { category: 'budget', name: "Breizh Café", rating: "4.8 ★", type: "Creperie", price: 22, desc: "Artisanal Breton buckwheat galettes." },
+                    { category: 'budget', name: "Bouillon Chartier", rating: "4.5 ★", type: "Bistro", price: 25, desc: "Classic historic French bistro." },
+                    { category: 'moderate', name: "Le Comptoir de la Relais", rating: "4.6 ★", type: "Bistro", price: 48, desc: "Beloved Saint-Germain-des-Prés bistro." },
+                    { category: 'moderate', name: "Café de Flore", rating: "4.5 ★", type: "Historic Cafe", price: 42, desc: "Iconic literary cafe in Saint-Germain." },
+                    { category: 'moderate', name: "Septime Cave", rating: "4.7 ★", type: "Natural Wine Bar", price: 45, desc: "Hip neighborhood small plates bar." },
+                    { category: 'luxury', name: "Le Train Bleu", rating: "4.8 ★", type: "Fine Dining", price: 110, desc: "Opulent Belle Époque dining hall." },
+                    { category: 'luxury', name: "Le Gabriel - La Réserve", rating: "4.9 ★", type: "2 Michelin", price: 140, desc: "Gourmet temple near Champs-Élysées." },
+                    { category: 'luxury', name: "Arpège by Alain Passard", rating: "4.9 ★", type: "3 Michelin", price: 160, desc: "Legendary vegetable-forward 3-star dining." }
                 ]
             },
             london: {
@@ -496,14 +524,28 @@
                 transit: 12,
                 activities: 20,
                 hotels: [
-                    { category: 'budget', name: "Wombat's City Hostel", stars: 2, rating: "4.6 ★★★★★", type: "Budget Hostel", rate: 40, desc: "Popular hostel near Tower Bridge." },
+                    { category: 'budget', name: "Wombat's City Hostel", stars: 2, rating: "4.6 ★★★★★", type: "Hostel", rate: 40, desc: "Popular hostel near Tower Bridge." },
+                    { category: 'budget', name: "Clink78", stars: 2, rating: "4.4 ★★★★☆", type: "Design Hostel", rate: 42, desc: "Converted Victorian courthouse hostel." },
+                    { category: 'budget', name: "Palmers Lodge Swiss Cottage", stars: 2, rating: "4.5 ★★★★★", type: "Victorian Hostel", rate: 45, desc: "Award-winning Swiss-style historic lodge." },
+                    { category: 'budget', name: " Astor Museum Hostel", stars: 2, rating: "4.4 ★★★★☆", type: "Hostel", rate: 48, desc: "Steps from British Museum." },
                     { category: 'moderate', name: "The Hoxton Holborn", stars: 4, rating: "4.7 ★★★★★", type: "4★ Hotel", rate: 130, desc: "Boutique hotel in central London." },
-                    { category: 'luxury', name: "The Ritz London", stars: 5, rating: "4.9 ★★★★★", type: "5★ Luxury", rate: 350, desc: "World-famous iconic 5-star Mayfair hotel." }
+                    { category: 'moderate', name: "Z Hotel Shoreditch", stars: 3, rating: "4.5 ★★★★★", type: "Compact Chic", rate: 110, desc: "Trendy compact rooms in East London." },
+                    { category: 'moderate', name: "CitizenM Bankside", stars: 4, rating: "4.8 ★★★★★", type: "Smart Hotel", rate: 140, desc: "Contemporary art-filled smart hotel." },
+                    { category: 'luxury', name: "The Ritz London", stars: 5, rating: "4.9 ★★★★★", type: "5★ Luxury", rate: 350, desc: "World-famous iconic Mayfair hotel." },
+                    { category: 'luxury', name: "The Savoy", stars: 5, rating: "4.9 ★★★★★", type: "Historic Palace", rate: 420, desc: "Legendary British luxury on the Strand." },
+                    { category: 'luxury', name: "Shangri-La The Shard", stars: 5, rating: "4.9 ★★★★★", type: "Skyline Luxury", rate: 480, desc: "Luxury rooms occupying levels 34-52 of The Shard." }
                 ],
                 dining: [
-                    { category: 'budget', name: "Borough Market Stalls", rating: "4.8 ★", type: "Street Food", price: 22, desc: "Artisanal street food market." },
-                    { category: 'moderate', name: "Dishoom Covent Garden", rating: "4.7 ★", type: "Bombay Cafe", price: 50, desc: "Famous Indian dining hall in London." },
-                    { category: 'luxury', name: "Core by Clare Smyth", rating: "4.9 ★", type: "Fine Dining", price: 120, desc: "3 Michelin Star fine dining experience." }
+                    { category: 'budget', name: "Borough Market Stalls", rating: "4.8 ★", type: "Street Food", price: 22, desc: "Artisanal food market." },
+                    { category: 'budget', name: "Beigel Bake Brick Lane", rating: "4.7 ★", type: "24/7 Bakery", price: 10, desc: "Legendary salt beef bagels in East London." },
+                    { category: 'budget', name: "Flat Iron Soho", rating: "4.6 ★", type: "Steakhouse", price: 25, desc: "Incredible affordable flat iron steaks." },
+                    { category: 'budget', name: "Padella Borough", rating: "4.8 ★", type: "Pasta Bar", price: 24, desc: "Handmade fresh pasta queues worth joining." },
+                    { category: 'moderate', name: "Dishoom Covent Garden", rating: "4.7 ★", type: "Bombay Cafe", price: 50, desc: "Famous Bombay cafe dining hall." },
+                    { category: 'moderate', name: "Rules Restaurant", rating: "4.6 ★", type: "Historic British", price: 55, desc: "London's oldest restaurant serving game & pies." },
+                    { category: 'moderate', name: "Bao Soho", rating: "4.7 ★", type: "Taiwanese Bao", price: 38, desc: "Minimalist Taiwanese steamed bun eatery." },
+                    { category: 'luxury', name: "Core by Clare Smyth", rating: "4.9 ★", type: "3 Michelin", price: 120, desc: "3 Michelin Star fine dining experience." },
+                    { category: 'luxury', name: "Sketch Lecture Room", rating: "4.8 ★", type: "3 Michelin", price: 140, desc: "Immersive pink art-filled fine dining." },
+                    { category: 'luxury', name: "The Ledbury", rating: "4.9 ★", type: "3 Michelin", price: 150, desc: "Notting Hill world-class tasting menus." }
                 ]
             },
             shanghai: {
@@ -514,13 +556,28 @@
                 transit: 5,
                 activities: 14,
                 hotels: [
-                    { category: 'budget', name: "The Captain Hostel Bund", stars: 2, rating: "4.3 ★★★★☆", type: "Budget Hostel", rate: 22, desc: "Nautical-themed hostel with Bund skyline rooftop." },
-                    { category: 'moderate', name: "URBN Hotel Shanghai", stars: 4, rating: "4.6 ★★★★★", type: "4★ Eco Boutique", rate: 75, desc: "Chic eco-friendly boutique hotel in Jing'an." },
-                    { category: 'luxury', name: "The Peninsula Shanghai", stars: 5, rating: "4.9 ★★★★★", type: "5★ Luxury", rate: 230, desc: "Ultra-luxury hotel directly overlooking Huangpu River." }
+                    { category: 'budget', name: "The Captain Hostel Bund", stars: 2, rating: "4.3 ★★★★☆", type: "Hostel", rate: 22, desc: "Nautical-themed hostel with Bund rooftop." },
+                    { category: 'budget', name: "Meego Youth Hostel", stars: 2, rating: "4.4 ★★★★☆", type: "Hostel", rate: 25, desc: "Social backpacker hostel in downtown." },
+                    { category: 'budget', name: "Blue Mountain Youth Hostel", stars: 2, rating: "4.5 ★★★★★", type: "Hostel", rate: 28, desc: "Central People's Square hostel." },
+                    { category: 'budget', name: "Phoenix Hostel Shanghai", stars: 2, rating: "4.4 ★★★★☆", type: "Hostel", rate: 30, desc: "Lively bar and backpacker hub." },
+                    { category: 'moderate', name: "URBN Hotel Shanghai", stars: 4, rating: "4.6 ★★★★★", type: "Eco Boutique", rate: 75, desc: "Chic eco-friendly boutique in Jing'an." },
+                    { category: 'moderate', name: "Middle House Shanghai", stars: 5, rating: "4.8 ★★★★★", type: "Design Luxury", rate: 160, desc: "Piero Lissoni designed sleek luxury hotel." },
+                    { category: 'moderate', name: "Okura Garden Hotel", stars: 5, rating: "4.5 ★★★★★", type: "Heritage Hotel", rate: 110, desc: "French heritage gardens in central downtown." },
+                    { category: 'luxury', name: "The Peninsula Shanghai", stars: 5, rating: "4.9 ★★★★★", type: "5★ Luxury", rate: 230, desc: "Ultra-luxury overlooking Huangpu River." },
+                    { category: 'luxury', name: "Waldorf Astoria Shanghai on the Bund", stars: 5, rating: "4.9 ★★★★★", type: "Heritage Luxury", rate: 270, desc: "Historic Shanghai Club heritage suites." },
+                    { category: 'luxury', name: "Amanyangyun", stars: 5, rating: "4.9 ★★★★★", type: "Ancient Villa Retreat", rate: 350, desc: "Rescued ancient Ming dynasty villa sanctuary." }
                 ],
                 dining: [
-                    { category: 'budget', name: "Jia Jia Tang Bao", rating: "4.7 ★", type: "Cheap Eats", price: 10, desc: "Famous local spot for authentic soup dumplings." },
-                    { category: 'moderate', name: "Lost Heaven Yunnan", rating: "4.8 ★", type: "Regional Cuisine", price: 28, desc: "Atmospheric Yunnanese dining near the Bund." }
+                    { category: 'budget', name: "Jia Jia Tang Bao", rating: "4.7 ★", type: "Cheap Eats", price: 10, desc: "Famous authentic soup dumplings." },
+                    { category: 'budget', name: "Yang's Fried Dumplings", rating: "4.8 ★", type: "Street Food", price: 12, desc: "Crispy pan-fried pork buns institution." },
+                    { category: 'budget', name: "Din Tai Fung", rating: "4.7 ★", type: "Dumpling House", price: 25, desc: "World-famous xiao long bao chain." },
+                    { category: 'budget', name: "Fu 1039", rating: "4.6 ★", type: "Local Shanghainese", price: 35, desc: "Classic home-style Shanghainese in villa." },
+                    { category: 'moderate', name: "Lost Heaven Yunnan", rating: "4.8 ★", type: "Regional Cuisine", price: 28, desc: "Atmospheric Yunnanese dining near Bund." },
+                    { category: 'moderate', name: "Ultraviolet by Paul Pairet", rating: "4.9 ★", type: "Immersive Dining", price: 90, desc: "Multi-sensory avant-garde dining experience." },
+                    { category: 'moderate', name: "Mr & Mrs Bund", rating: "4.7 ★", type: "Modern French", price: 65, desc: "Chic modern French eatery with Bund views." },
+                    { category: 'luxury', name: "Tai'an Table", rating: "4.9 ★", type: "3 Michelin", price: 95, desc: "Intimate open-kitchen 3 Michelin Star dining." },
+                    { category: 'luxury', name: "Canton Table", rating: "4.8 ★", type: "Fine Cantonese", price: 85, desc: "High-end upscale Cantonese cuisine." },
+                    { category: 'luxury', name: "Fu He Hui", rating: "4.9 ★", type: "Vegetarian Fine Dining", price: 80, desc: "Michelin-starred zen vegetarian tasting menus." }
                 ]
             },
             tokyo: {
@@ -531,12 +588,28 @@
                 transit: 8,
                 activities: 15,
                 hotels: [
-                    { category: 'budget', name: "Nui. Hostel & Bar", stars: 2, rating: "4.6 ★★★★★", type: "Budget Hostel", rate: 30, desc: "Cozy riverside hostel lounge in Kuramae." },
+                    { category: 'budget', name: "Nui. Hostel & Bar", stars: 2, rating: "4.6 ★★★★★", type: "Hostel", rate: 30, desc: "Cozy riverside hostel lounge." },
+                    { category: 'budget', name: "Imano Tokyo Hostel", stars: 2, rating: "4.5 ★★★★★", type: "Hostel", rate: 32, desc: "Shinjuku cultural backpacker hub." },
+                    { category: 'budget', name: "Wise Owl Hostels", stars: 2, rating: "4.4 ★★★★☆", type: "Hostel", rate: 35, desc: "Tokyo stylish design hostel." },
+                    { category: 'budget', name: "Khaosan Tokyo Samurai", stars: 2, rating: "4.4 ★★★★☆", type: "Hostel", rate: 38, desc: "Asakusa traditional backpacker stay." },
                     { category: 'moderate', name: "Hotel Gracery Shinjuku", stars: 4, rating: "4.7 ★★★★★", type: "4★ Hotel", rate: 90, desc: "Famous Godzilla-head hotel in Shinjuku." },
-                    { category: 'luxury', name: "Park Hyatt Tokyo", stars: 5, rating: "4.9 ★★★★★", type: "5★ Luxury", rate: 290, desc: "Iconic luxury tower hotel with Mount Fuji views." }
+                    { category: 'moderate', name: "The Millennials Shibuya", stars: 3, rating: "4.6 ★★★★★", type: "Smart Pods", rate: 85, desc: "High-tech smart pod hotel in Shibuya." },
+                    { category: 'moderate', name: "sequence MIYASHITA PARK", stars: 4, rating: "4.7 ★★★★★", type: "Lifestyle Hotel", rate: 110, desc: "Modern Shibuya parkside hotel." },
+                    { category: 'luxury', name: "Park Hyatt Tokyo", stars: 5, rating: "4.9 ★★★★★", type: "Luxury Tower", rate: 290, desc: "Iconic luxury tower with Mount Fuji views." },
+                    { category: 'luxury', name: "Aman Tokyo", stars: 5, rating: "4.9 ★★★★★", type: "Zen Luxury", rate: 450, desc: "Tranquil luxury sanctuary overlooking Imperial Palace." },
+                    { category: 'luxury', name: "Mandarin Oriental Tokyo", stars: 5, rating: "4.9 ★★★★★", type: "Nihonbashi Luxury", rate: 380, desc: "Award-winning five-star luxury tower." }
                 ],
                 dining: [
-                    { category: 'budget', name: "Ichiran Shinjuku", rating: "4.7 ★", type: "Ramen", price: 18, desc: "Famous solo-booth tonkotsu ramen." }
+                    { category: 'budget', name: "Ichiran Shinjuku", rating: "4.7 ★", type: "Ramen", price: 18, desc: "Famous solo-booth tonkotsu ramen." },
+                    { category: 'budget', name: "Tsuta Ramen", rating: "4.6 ★", type: "Michelin Ramen", price: 20, desc: "World's first Michelin-starred ramen shop." },
+                    { category: 'budget', name: "Harajuku Gyoza Lou", rating: "4.7 ★", type: "Dumplings", price: 15, desc: "Crispy fried and steamed gyoza institution." },
+                    { category: 'budget', name: "Ichiryu Yakitori", rating: "4.6 ★", type: "Izakaya", price: 22, desc: "Casual grilled skewers and drinks." },
+                    { category: 'moderate', name: "Torikizoku Yakitori", rating: "4.7 ★", type: "Izakaya Chain", price: 35, desc: "Popular local pub serving grilled yakitori." },
+                    { category: 'moderate', name: "Gonpachi Nishi-Azabu", rating: "4.6 ★", type: "Kill Bill Restaurant", price: 50, desc: "Famous atmospheric handmade soba and sushi." },
+                    { category: 'moderate', name: "Afuri Ramen", rating: "4.8 ★", type: "Yuzu Ramen", price: 28, desc: "Refreshing yuzu citrus chicken broth ramen." },
+                    { category: 'luxury', name: "Kagurazaka Ishikawa", rating: "4.9 ★", type: "3 Michelin Kaiseki", price: 110, desc: "Traditional multi-course kaiseki dining." },
+                    { category: 'luxury', name: "Narisawa Tokyo", rating: "4.9 ★", type: "Innovative Eco", price: 130, desc: "Satoyama sustainable innovative gastronomy." },
+                    { category: 'luxury', name: "Sukiyabashi Jiro", rating: "4.9 ★", type: "Legendary Sushi", price: 150, desc: "World-renowned master sushi omakase experience." }
                 ]
             }
         };
@@ -578,7 +651,6 @@
         function handleCitySearchInput(val) {
             showCitySuggestions();
             renderCitySuggestions(val);
-            // Automatically process custom city instantly on typing!
             if (val.trim().length > 0) {
                 ensureCustomCityObject(val);
             }
@@ -598,13 +670,18 @@
                     transit: 8,
                     activities: 16,
                     hotels: [
-                        { category: 'budget', name: cleanName + " Central Hostel", stars: 2, rating: "4.4 ★★★★☆", type: "Budget Stay", rate: 35, desc: "Clean & convenient central location." },
+                        { category: 'budget', name: cleanName + " Central Hostel", stars: 2, rating: "4.4 ★★★★☆", type: "Budget Stay", rate: 35, desc: "Clean central backpacker stay." },
+                        { category: 'budget', name: cleanName + " Eco Inn", stars: 2, rating: "4.5 ★★★★★", type: "B&B Stay", rate: 42, desc: "Cozy local bed & breakfast." },
                         { category: 'moderate', name: cleanName + " Boutique Hotel", stars: 4, rating: "4.7 ★★★★★", type: "4★ Hotel", rate: 90, desc: "Comfortable boutique hotel stay." },
+                        { category: 'moderate', name: cleanName + " City Suites", stars: 4, rating: "4.6 ★★★★★", type: "4★ Suites", rate: 105, desc: "Spacious central apartment hotel." },
                         { category: 'luxury', name: cleanName + " Grand Resort", stars: 5, rating: "4.9 ★★★★★", type: "5★ Luxury", rate: 250, desc: "Luxury 5-star premier accommodation." }
                     ],
                     dining: [
-                        { category: 'budget', name: cleanName + " Street Food Eats", rating: "4.6 ★", type: "Local Eats", price: 18, desc: "Popular street food market." },
-                        { category: 'moderate', name: cleanName + " Central Bistro", rating: "4.7 ★", type: "Local Bistro", price: 40, desc: "Authentic local dishes and specialties." }
+                        { category: 'budget', name: cleanName + " Street Food Eats", rating: "4.6 ★", type: "Local Eats", price: 18, desc: "Popular street food market stalls." },
+                        { category: 'budget', name: cleanName + " Night Market Stalls", rating: "4.5 ★", type: "Night Market", price: 20, desc: "Local nighttime food specialties." },
+                        { category: 'moderate', name: cleanName + " Central Bistro", rating: "4.7 ★", type: "Local Bistro", price: 40, desc: "Authentic local dishes and specialties." },
+                        { category: 'moderate', name: cleanName + " Artisan Cafe", rating: "4.6 ★", type: "Cafe & Bar", price: 32, desc: "Neighborhood favorite coffee and plates." },
+                        { category: 'luxury', name: cleanName + " Fine Dining Sky", rating: "4.9 ★", type: "Fine Dining", price: 85, desc: "Upscale gourmet rooftop experience." }
                     ]
                 };
             }
