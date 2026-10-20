@@ -1,3 +1,23 @@
+The reason it doesn't auto-calculate right away as you type is because the app requires clicking that **`+ Set custom location as "los angeles"`** button first.
+
+Until you click that button, the system is waiting for you to finish typing or pick a suggestion, so it hasn't applied the default cost estimates for Los Angeles yet.
+
+---
+
+### We Can Fix This!
+
+We can update the JavaScript code so that **it auto-creates and calculates instant estimates for ANY city in real time as you type**, without forcing you to click the popup button!
+
+Here is the updated code where:
+
+1. **Instant Auto-Calculation on Typing:** Typing any custom city (like *"Los Angeles"*, *"Barcelona"*, *"Seoul"*, etc.) instantly populates default flight, stay, and meal estimates without needing extra clicks.
+
+
+2. **Instant Capitalization Formatting:** Automatically cleans up text (e.g. typing `"los angeles"` instantly converts to `"Los Angeles"`) for clean display.
+
+
+
+```html
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
@@ -123,7 +143,7 @@
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Destination City</label>
                             
                             <div class="relative flex items-center">
-                                <input type="text" id="citySearchInput" value="Rome, Italy" oninput="handleCitySearchInput(this.value)" onfocus="showCitySuggestions()" placeholder="Type city name (e.g. Paris, Shanghai, Tokyo)..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-3 pr-8 py-2.5 text-sm font-semibold text-slate-800 outline-none focus:ring-2 focus:ring-brand-500">
+                                <input type="text" id="citySearchInput" value="Rome, Italy" oninput="handleCitySearchInput(this.value)" onfocus="showCitySuggestions()" placeholder="Type any city (e.g. Los Angeles, Paris)..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-3 pr-8 py-2.5 text-sm font-semibold text-slate-800 outline-none focus:ring-2 focus:ring-brand-500">
                                 <button onclick="clearCityInput()" class="absolute right-2.5 text-slate-400 hover:text-slate-600 text-sm font-bold p-1">✕</button>
                             </div>
 
@@ -135,7 +155,7 @@
 
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Sub-Location / District</label>
-                            <input type="text" id="singleSubLocation" placeholder="e.g. Montmartre or Trastevere" oninput="saveAndRecalculate()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-medium focus:ring-2 focus:ring-brand-500 outline-none">
+                            <input type="text" id="singleSubLocation" placeholder="e.g. Montmartre or Hollywood" oninput="saveAndRecalculate()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-medium focus:ring-2 focus:ring-brand-500 outline-none">
                         </div>
                     </div>
 
@@ -578,6 +598,37 @@
         function handleCitySearchInput(val) {
             showCitySuggestions();
             renderCitySuggestions(val);
+            // Automatically process custom city instantly on typing!
+            if (val.trim().length > 0) {
+                ensureCustomCityObject(val);
+            }
+        }
+
+        function ensureCustomCityObject(rawName) {
+            const cleanName = rawName.trim().replace(/\b\w/g, l => l.toUpperCase());
+            const key = 'custom_' + cleanName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            currentSelectedCityKey = key;
+
+            if (!cityDatabase[key]) {
+                cityDatabase[key] = {
+                    name: cleanName,
+                    flight: 300,
+                    baseHotel: { budget: 35, moderate: 90, luxury: 250 },
+                    baseFood: { budget: 18, moderate: 40, luxury: 90 },
+                    transit: 8,
+                    activities: 16,
+                    hotels: [
+                        { category: 'budget', name: cleanName + " Central Hostel", stars: 2, rating: "4.4 ★★★★☆", type: "Budget Stay", rate: 35, desc: "Clean & convenient central location." },
+                        { category: 'moderate', name: cleanName + " Boutique Hotel", stars: 4, rating: "4.7 ★★★★★", type: "4★ Hotel", rate: 90, desc: "Comfortable boutique hotel stay." },
+                        { category: 'luxury', name: cleanName + " Grand Resort", stars: 5, rating: "4.9 ★★★★★", type: "5★ Luxury", rate: 250, desc: "Luxury 5-star premier accommodation." }
+                    ],
+                    dining: [
+                        { category: 'budget', name: cleanName + " Street Food Eats", rating: "4.6 ★", type: "Local Eats", price: 18, desc: "Popular street food market." },
+                        { category: 'moderate', name: cleanName + " Central Bistro", rating: "4.7 ★", type: "Local Bistro", price: 40, desc: "Authentic local dishes and specialties." }
+                    ]
+                };
+            }
+            applySelectedCityDefaults();
         }
 
         function renderCitySuggestions(query) {
@@ -600,14 +651,6 @@
                 `;
             });
 
-            if (q.length > 0) {
-                html += `
-                    <div onclick="selectCustomCity('${query}')" class="px-4 py-2.5 hover:bg-brand-50 cursor-pointer text-xs font-bold text-brand-700 flex items-center gap-2 border-t border-slate-100">
-                        <span>+ Set custom location as "${query}"</span>
-                    </div>
-                `;
-            }
-
             dropdown.innerHTML = html;
         }
 
@@ -615,28 +658,6 @@
             currentSelectedCityKey = key;
             const city = cityDatabase[key];
             document.getElementById('citySearchInput').value = city.name;
-            closeCitySuggestions();
-            applySelectedCityDefaults();
-        }
-
-        function selectCustomCity(name) {
-            currentSelectedCityKey = 'custom_' + name.toLowerCase().replace(/[^a-z0-9]/g, '');
-            cityDatabase[currentSelectedCityKey] = {
-                name: name,
-                flight: 250,
-                baseHotel: { budget: 30, moderate: 85, luxury: 220 },
-                baseFood: { budget: 15, moderate: 35, luxury: 85 },
-                transit: 8,
-                activities: 15,
-                hotels: [
-                    { category: 'moderate', name: name + " Boutique Stay", stars: 3, rating: "4.5 ★★★★☆", type: "3★ Hotel", rate: 85, desc: "Standard comfortable boutique stay." }
-                ],
-                dining: [
-                    { category: 'moderate', name: name + " Local Eatery", rating: "4.6 ★", type: "Bistro", price: 35, desc: "Authentic local dishes and specialties." }
-                ]
-            };
-
-            document.getElementById('citySearchInput').value = name;
             closeCitySuggestions();
             applySelectedCityDefaults();
         }
@@ -1024,3 +1045,5 @@
     </script>
 </body>
 </html>
+
+```
