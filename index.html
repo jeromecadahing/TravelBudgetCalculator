@@ -9,7 +9,7 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2314b8a6'/><path d='M25 50 L75 25 L60 50 L75 75 Z' fill='white'/></svg>">
     
     <!-- PWA Web App Manifest -->
-    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIldhbmRlckJ1ZGdldCAtIFRyYXZlbCBDYWxjdWxhdG9yIiwKICAic2hvcnRfbmFtZSI6ICJXYW5kZXJCdWRnZXQiLAogICJzdGFydF91cmwiOiAiLi8iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmOGZhZmMiLAogICJ0aGVtZV9jb2xvciI6ICIjMDRiOGE2IiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sLDxzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTAwIDEwMCc+PHJlY3Qgd2lkdGg9JzEwMCcgaGVpZ2h0PScxMDAnIHJ4PScyMCcgZmlsbD0nJTIzMDRiOGE2Jy8+PHBhdGggZD0nTTI1IDUwIEw3NSA4NSBMNjAgNTAgTDc1IDc1IFonIGZpbGw9J3doaXRlgyi+PC9zdmc+\",\n      InNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIiwKICAgICAgImZ1cm5pc2giOiAieWFueSIKICAgIH0KICBdCn0=">
+    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIldhbmRlckJ1ZGdldCAtIFRyYXZlbCBDYWxjdWxhdG9yIiwKICAic2hvcnRfbmFtZSI6ICJXYW5kZXJCdWRnZXQiLAogICJzdGFydF91cmwiOiAiLi8iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmOGZhZmMiLAogICJ0aGVtZV9jb2xvciI6ICIjMDRiOGE2IiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sLDxzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTAwIDEwMCc+PHJlY3Qgd2lkdGg9JzEwMCcgaGVpZ2h0PScxMDAnIHJ4PScyMCcgZmlsbD0nJTIzMDRiOGE2Jy8+PHBhdGggZD0nTTI1IDUwIEw3NSA4NSBMNjAgNTAgTDc1IDc1IFonIGZpbGw9J3doaXRlJy8+PC9zdmc+\",\n      InNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIiwKICAgICAgImZ1cm5pc2giOiAieWFueSIKICAgIH0KICBdCn0=">
     
     <!-- Mobile / iOS PWA Support -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -317,7 +317,7 @@
             <!-- Navigation Tabs -->
             <div class="flex border-b border-slate-200 bg-slate-50/50 overflow-x-auto">
                 <button onclick="setActiveTab('breakdown')" id="tabBtn-breakdown" class="tab-btn px-6 py-4 font-bold text-sm text-brand-600 border-b-2 border-brand-500 bg-white flex items-center gap-2 shrink-0">
-                    <i data-lucide="list-checks" class="w-4 h-4"></i> What Budget Covers
+                    <i data-lucide="list-checks" class="w-4 h-4"></i> What Budget Covers & Itemized Details
                 </button>
                 <button onclick="setActiveTab('hotels')" id="tabBtn-hotels" class="tab-btn px-6 py-4 font-bold text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center gap-2 shrink-0">
                     <i data-lucide="hotel" class="w-4 h-4"></i> Hotels & Stays (10 Options)
@@ -333,47 +333,55 @@
             <div class="p-6">
                 <!-- TAB 1: BREAKDOWN & INCLUSIONS -->
                 <div id="tabContent-breakdown" class="tab-content space-y-6">
-                    <h3 class="text-base font-bold text-slate-800">Itemized Cost Summary & Inclusions</h3>
+                    <h3 class="text-base font-bold text-slate-800">Comprehensive Itemized Breakdown & Inclusions</h3>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
-                            <div class="flex items-center gap-2 font-bold text-slate-800 mb-2">
-                                <i data-lucide="plane" class="w-4 h-4 text-brand-500"></i> Flights / Long Distance Transit
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                            <div class="flex items-center justify-between font-bold text-slate-800">
+                                <span class="flex items-center gap-1.5"><i data-lucide="plane" class="w-4 h-4 text-brand-500"></i> Flights / Long Transit</span>
+                                <span class="text-brand-600 text-sm" id="summaryCardFlight">£0</span>
                             </div>
-                            <p class="text-xs text-slate-600">Covers round-trip airline tickets, airport transfers, checked baggage fees, and long-distance trains or buses to your destination.</p>
+                            <p class="text-xs text-slate-600">Covers round-trip airline tickets, airport transfers, checked baggage fees, and long-distance trains or buses to your destination city.</p>
                         </div>
-                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
-                            <div class="flex items-center gap-2 font-bold text-slate-800 mb-2">
-                                <i data-lucide="bed" class="w-4 h-4 text-brand-500"></i> Accommodation
+
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                            <div class="flex items-center justify-between font-bold text-slate-800">
+                                <span class="flex items-center gap-1.5"><i data-lucide="bed" class="w-4 h-4 text-brand-500"></i> Accommodation</span>
+                                <span class="text-brand-600 text-sm" id="summaryCardHotel">£0</span>
                             </div>
-                            <p class="text-xs text-slate-600">Covers room rate, local city tourist taxes, WiFi, and clean standard lodging in selected location.</p>
+                            <p class="text-xs text-slate-600">Covers nightly room rates, local city tourist taxes, WiFi, resort fees, and clean lodging chosen in your hotel style.</p>
                         </div>
-                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
-                            <div class="flex items-center gap-2 font-bold text-slate-800 mb-2">
-                                <i data-lucide="utensils" class="w-4 h-4 text-brand-500"></i> Meals & Drinks
+
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                            <div class="flex items-center justify-between font-bold text-slate-800">
+                                <span class="flex items-center gap-1.5"><i data-lucide="utensils" class="w-4 h-4 text-brand-500"></i> Meals & Drinks</span>
+                                <span class="text-brand-600 text-sm" id="summaryCardFood">£0</span>
                             </div>
-                            <p class="text-xs text-slate-600">Covers breakfast, lunch, dinner, coffee breaks, snacks, and tipping/service charges where customary.</p>
+                            <p class="text-xs text-slate-600">Covers daily breakfast, lunch, dinner, coffee breaks, snacks, and tipping/service charges based on your dining style.</p>
                         </div>
-                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
-                            <div class="flex items-center gap-2 font-bold text-slate-800 mb-2">
-                                <i data-lucide="bus" class="w-4 h-4 text-brand-500"></i> Local Transport
+
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                            <div class="flex items-center justify-between font-bold text-slate-800">
+                                <span class="flex items-center gap-1.5"><i data-lucide="bus" class="w-4 h-4 text-brand-500"></i> Local Transport</span>
+                                <span class="text-brand-600 text-sm" id="summaryCardTransit">£0</span>
                             </div>
-                            <p class="text-xs text-slate-600">Covers daily metro passes, city buses, trams, ferries, short-distance subways, and occasional ride-shares or taxis within the city.</p>
+                            <p class="text-xs text-slate-600">Covers daily metro passes, city buses, trams, ferries, short subways, and occasional ride-shares or taxis within the city.</p>
                         </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
-                            <div class="flex items-center gap-2 font-bold text-slate-800 mb-2">
-                                <i data-lucide="ticket" class="w-4 h-4 text-brand-500"></i> Sightseeing & Activities
+
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                            <div class="flex items-center justify-between font-bold text-slate-800">
+                                <span class="flex items-center gap-1.5"><i data-lucide="ticket" class="w-4 h-4 text-brand-500"></i> Sightseeing & Activities</span>
+                                <span class="text-brand-600 text-sm" id="summaryCardActivities">£0</span>
                             </div>
                             <p class="text-xs text-slate-600">Covers museum entrance tickets, historical landmarks, guided walking tours, amusement parks, theater shows, and audio guides.</p>
                         </div>
-                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
-                            <div class="flex items-center gap-2 font-bold text-slate-800 mb-2">
-                                <i data-lucide="shield-alert" class="w-4 h-4 text-brand-500"></i> Emergency Buffer
+
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                            <div class="flex items-center justify-between font-bold text-slate-800">
+                                <span class="flex items-center gap-1.5"><i data-lucide="shield-alert" class="w-4 h-4 text-brand-500"></i> Emergency Buffer</span>
+                                <span class="text-brand-600 text-sm" id="summaryCardBuffer">£0</span>
                             </div>
-                            <p class="text-xs text-slate-600">A flexible safety cushion set aside as a percentage of total expenses to cover unexpected medical costs, lost items, or last-minute price surges.</p>
+                            <p class="text-xs text-slate-600">A flexible safety cushion set aside as a percentage of total expenses to cover unexpected medical costs, lost items, or price surges.</p>
                         </div>
                     </div>
 
@@ -870,6 +878,14 @@
             document.getElementById('displayPerPerson').textContent = `${sym}${Math.round(perPersonTotal).toLocaleString()}`;
             document.getElementById('displayDailyPerPerson').textContent = `${sym}${Math.round(perPersonDaily).toLocaleString()}`;
             document.getElementById('bufferExplanation').textContent = `Includes ${sym}${Math.round(bufferAmount).toLocaleString()} safety cushion (${bufferPct*100}%) for unforeseen transit, medical expenses, or rate changes.`;
+
+            // Update live totals inside the explanation grid cards
+            document.getElementById('summaryCardFlight').textContent = `${sym}${Math.round(totalFlight).toLocaleString()}`;
+            document.getElementById('summaryCardHotel').textContent = `${sym}${Math.round(totalHotel).toLocaleString()}`;
+            document.getElementById('summaryCardFood').textContent = `${sym}${Math.round(totalFood).toLocaleString()}`;
+            document.getElementById('summaryCardTransit').textContent = `${sym}${Math.round(totalTransit).toLocaleString()}`;
+            document.getElementById('summaryCardActivities').textContent = `${sym}${Math.round(totalActivities).toLocaleString()}`;
+            document.getElementById('summaryCardBuffer').textContent = `${sym}${Math.round(bufferAmount).toLocaleString()}`;
 
             updateChart([totalFlight, totalHotel, totalFood, totalTransit, totalActivities, bufferAmount], sym);
             renderBreakdownTable(days, travelers, rate, sym, baseFlight, baseHotel, baseFood, baseTransit, baseActivities, bufferAmount);
