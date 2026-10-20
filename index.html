@@ -9,7 +9,7 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2314b8a6'/><path d='M25 50 L75 25 L60 50 L75 75 Z' fill='white'/></svg>">
     
     <!-- PWA Web App Manifest -->
-    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIldhbmRlckJ1ZGdldCAtIFRyYXZlbCBDYWxjdWxhdG9yIiwKICAic2hvcnRfbmFtZSI6ICJXYW5kZXJCdWRnZXQiLAogICJzdGFydF91cmwiOiAiLi8iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmOGZhZmMiLAogICJ0aGVtZV9jb2xvciI6ICIjMDRiOGE2IiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sLDxzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTAwIDEwMCc+PHJlY3Qgd2lkdGg9JzEwMCcgaGVpZ2h0PScxMDAnIHJ4PScyMCcgZmlsbD0nJTIzMDRiOGE2Jy8+PHBhdGggZD0nTTI1IDUwIEw3NSA4NSBMNjAgNTAgTDc1IDc1IFonIGZpbGw9J3doaXRlJy8+PC9zdmc+\",\n      InNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIiwKICAgICAgImZ1cm5pc2giOiAieWFueSIKICAgIH0KICBdCn0=">
+    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIldhbmRlckJ1ZGdldCAtIFRyYXZlbCBDYWxjdWxhdG9yIiwKICAic2hvcnRfbmFtZSI6ICJXYW5kZXJCdWRnZXQiLAogICJzdGFydF91cmwiOiAiLi8iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmOGZhZmMiLAogICJ0aGVtZV9jb2xvciI6ICIjMDRiOGE2IiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sLDxzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTAwIDEwMCc+PHJlY3Qgd2lkdGg9JzEwMCcgaGVpZ2h0PScxMDAnIHJ4PScyMCcgZmlsbD0nJTIzMDRiOGE2Jy8+PHBhdGggZD0nTTI1IDUwIEw3NSA4NSBMNjAgNTAgTDc1IDc1IFonIGZpbGw9J3doaXRlgyi+PC9zdmc+\",\n      InNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIiwKICAgICAgImZ1cm5pc2giOiAieWFueSIKICAgIH0KICBdCn0=">
     
     <!-- Mobile / iOS PWA Support -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -338,6 +338,12 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
                             <div class="flex items-center gap-2 font-bold text-slate-800 mb-2">
+                                <i data-lucide="plane" class="w-4 h-4 text-brand-500"></i> Flights / Long Distance Transit
+                            </div>
+                            <p class="text-xs text-slate-600">Covers round-trip airline tickets, airport transfers, checked baggage fees, and long-distance trains or buses to your destination.</p>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                            <div class="flex items-center gap-2 font-bold text-slate-800 mb-2">
                                 <i data-lucide="bed" class="w-4 h-4 text-brand-500"></i> Accommodation
                             </div>
                             <p class="text-xs text-slate-600">Covers room rate, local city tourist taxes, WiFi, and clean standard lodging in selected location.</p>
@@ -352,13 +358,22 @@
                             <div class="flex items-center gap-2 font-bold text-slate-800 mb-2">
                                 <i data-lucide="bus" class="w-4 h-4 text-brand-500"></i> Local Transport
                             </div>
-                            <p class="text-xs text-slate-600">Covers daily metro passes, buses, occasional ride-shares, or local suburban rail journeys.</p>
+                            <p class="text-xs text-slate-600">Covers daily metro passes, city buses, trams, ferries, short-distance subways, and occasional ride-shares or taxis within the city.</p>
                         </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
                             <div class="flex items-center gap-2 font-bold text-slate-800 mb-2">
                                 <i data-lucide="ticket" class="w-4 h-4 text-brand-500"></i> Sightseeing & Activities
                             </div>
-                            <p class="text-xs text-slate-600">Covers museum tickets, entry to historical landmarks, audio guides, or city day tours.</p>
+                            <p class="text-xs text-slate-600">Covers museum entrance tickets, historical landmarks, guided walking tours, amusement parks, theater shows, and audio guides.</p>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                            <div class="flex items-center gap-2 font-bold text-slate-800 mb-2">
+                                <i data-lucide="shield-alert" class="w-4 h-4 text-brand-500"></i> Emergency Buffer
+                            </div>
+                            <p class="text-xs text-slate-600">A flexible safety cushion set aside as a percentage of total expenses to cover unexpected medical costs, lost items, or last-minute price surges.</p>
                         </div>
                     </div>
 
