@@ -247,12 +247,12 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Activities & Tours / Day</label>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Activities & Tours / Day (or Sum of Tab)</label>
                             <div class="relative">
                                 <span class="absolute left-3 top-2.5 text-xs text-slate-400 font-bold currencySymbol">£</span>
                                 <input type="number" id="inputActivities" oninput="saveAndRecalculate()" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-7 pr-3 py-2 text-sm font-semibold outline-none">
                             </div>
-                            <span class="text-[10px] text-slate-400">Museums, guides</span>
+                            <span class="text-[10px] text-slate-400">Auto-calculated from activity list</span>
                         </div>
 
                         <div>
@@ -379,7 +379,7 @@
                                 <span class="flex items-center gap-1.5"><i data-lucide="ticket" class="w-4 h-4 text-brand-500"></i> Sightseeing & Activities</span>
                                 <span class="text-brand-600 text-sm" id="summaryCardActivities">£0</span>
                             </div>
-                            <p class="text-xs text-slate-600">Covers museum entrance tickets, historical landmarks, guided walking tours, amusement parks, theater shows, and audio guides.</p>
+                            <p class="text-xs text-slate-600">Sum of selected ticket prices for all activities listed in the Attractions tab per traveler.</p>
                         </div>
 
                         <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
@@ -414,7 +414,7 @@
                     <div class="flex justify-between items-center">
                         <div>
                             <h3 class="text-base font-bold text-slate-800">Itemized Attractions, Sightseeing & Activity Entry Fees</h3>
-                            <p class="text-xs text-slate-500">Specific top attractions in your destination with ticket prices and photo links</p>
+                            <p class="text-xs text-slate-500">Specific top attractions in your destination with per-person ticket prices and photo links</p>
                         </div>
                         <button onclick="promptAddCustomActivity()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg border border-slate-300">
                             + Add Custom Activity
@@ -431,7 +431,7 @@
                     <div class="flex justify-between items-center">
                         <div>
                             <h3 class="text-base font-bold text-slate-800">Transportation & Flight Details</h3>
-                            <p class="text-xs text-slate-500">Breakdown of city pass options, airport transfers, and flight ticket searches</p>
+                            <p class="text-xs text-slate-500">Breakdown of city pass options, airport transfers, and flight ticket searches (per person)</p>
                         </div>
                     </div>
 
@@ -857,7 +857,14 @@
             document.getElementById('inputHotel').value = city.baseHotel[hStyle];
             document.getElementById('inputFood').value = city.baseFood[dStyle];
             document.getElementById('inputTransit').value = city.transit;
-            document.getElementById('inputActivities').value = city.activities;
+
+            // Automatically set inputActivities to sum of all items in activitiesList
+            if (city.activitiesList && city.activitiesList.length > 0) {
+                const totalActivitySum = city.activitiesList.reduce((sum, item) => sum + item.price, 0);
+                document.getElementById('inputActivities').value = totalActivitySum;
+            } else {
+                document.getElementById('inputActivities').value = city.activities;
+            }
 
             saveAndRecalculate();
         }
@@ -970,7 +977,8 @@
             const totalHotel = baseHotel * rate * days;
             const totalFood = baseFood * rate * days * travelers;
             const totalTransit = baseTransit * rate * days * travelers;
-            const totalActivities = baseActivities * rate * days * travelers;
+            // Activities input in base settings is now treated as total per person for listed activities
+            const totalActivities = baseActivities * rate * travelers;
 
             const subtotal = totalFlight + totalHotel + totalFood + totalTransit + totalActivities;
             const bufferAmount = subtotal * bufferPct;
@@ -1032,7 +1040,7 @@
                 { name: 'Accommodation', daily: (hotel * rate) / travelers, totalPP: (hotel * rate * days) / travelers, groupTotal: hotel * rate * days },
                 { name: 'Food & Meals', daily: food * rate, totalPP: food * rate * days, groupTotal: food * rate * days * travelers },
                 { name: 'Local Transport', daily: transit * rate, totalPP: transit * rate * days, groupTotal: transit * rate * days * travelers },
-                { name: 'Activities & Sightseeing', daily: activities * rate, totalPP: activities * rate * days, groupTotal: activities * rate * days * travelers },
+                { name: 'Activities & Sightseeing (All Listed)', daily: '-', totalPP: activities * rate, groupTotal: activities * rate * travelers },
                 { name: 'Emergency Buffer', daily: '-', totalPP: buffer / travelers, groupTotal: buffer }
             ];
 
@@ -1052,14 +1060,17 @@
             // Activities tab render
             const activitiesGrid = document.getElementById('activitiesOptionsGrid');
             if (city.activitiesList && city.activitiesList.length > 0) {
-                activitiesGrid.innerHTML = city.activitiesList.map(a => {
+                activitiesGrid.innerHTML = city.activitiesList.map((a, idx) => {
                     const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(a.name + " " + city.name + " tickets photos")}&tbm=isch`;
                     return `
                         <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col justify-between space-y-3">
                             <div>
                                 <div class="flex justify-between items-center">
                                     <span class="text-[10px] font-bold uppercase tracking-wider text-teal-700 bg-teal-100 px-2 py-0.5 rounded-full">${a.type}</span>
-                                    <span class="font-extrabold text-slate-800 text-sm">${sym}${Math.round(a.price * rate)}</span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-extrabold text-slate-800 text-sm">${sym}${Math.round(a.price * rate)} <span class="text-[10px] font-normal text-slate-500">per person</span></span>
+                                        <button onclick="removeActivity(${idx})" title="Remove Activity" class="text-slate-400 hover:text-red-500 text-xs font-bold px-1">✕</button>
+                                    </div>
                                 </div>
                                 <h4 class="font-bold text-slate-800 mt-2">${a.name}</h4>
                                 <p class="text-xs text-slate-500 mt-1">${a.desc}</p>
@@ -1084,7 +1095,7 @@
                             <div>
                                 <div class="flex justify-between items-center">
                                     <span class="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full">${t.type}</span>
-                                    <span class="font-extrabold text-slate-800 text-sm">${sym}${Math.round(t.price * rate)}</span>
+                                    <span class="font-extrabold text-slate-800 text-sm">${sym}${Math.round(t.price * rate)} <span class="text-[10px] font-normal text-slate-500">per person</span></span>
                                 </div>
                                 <h4 class="font-bold text-slate-800 mt-2">${t.name}</h4>
                                 <p class="text-xs text-slate-500 mt-1">${t.desc}</p>
@@ -1097,6 +1108,17 @@
                 }).join('');
             } else {
                 transitGrid.innerHTML = `<p class="col-span-3 text-xs text-slate-400 italic">No pre-populated transit details for this custom location.</p>`;
+            }
+        }
+
+        function removeActivity(index) {
+            const city = cityDatabase[currentSelectedCityKey] || cityDatabase['rome'];
+            if (city.activitiesList) {
+                city.activitiesList.splice(index, 1);
+                // Recalculate activities sum input
+                const newSum = city.activitiesList.reduce((sum, item) => sum + item.price, 0);
+                document.getElementById('inputActivities').value = newSum;
+                updateCalculations();
             }
         }
 
@@ -1124,7 +1146,7 @@
                             <div class="space-y-2 pt-2 border-t border-slate-200">
                                 <div class="flex justify-between items-center">
                                     <span class="text-xs text-slate-400">Nightly Rate</span>
-                                    <span class="font-extrabold text-slate-800 text-sm">${sym}${Math.round(h.rate * rate)}</span>
+                                    <span class="font-extrabold text-slate-800 text-sm">${sym}${Math.round(h.rate * rate)} <span class="text-[10px] font-normal text-slate-500">per night</span></span>
                                 </div>
                                 <a href="${searchUrl}" target="_blank" class="w-full text-center block text-xs font-bold text-brand-600 hover:text-brand-700 bg-white border border-brand-300 py-1.5 rounded-lg hover:bg-brand-50 transition">
                                     📷 View Photos & Reviews
@@ -1156,7 +1178,7 @@
                             <div class="space-y-2 pt-2 border-t border-slate-200">
                                 <div class="flex justify-between items-center">
                                     <span class="text-xs text-slate-400">Avg Meal / Person</span>
-                                    <span class="font-extrabold text-slate-800 text-sm">${sym}${Math.round(d.price * rate)}</span>
+                                    <span class="font-extrabold text-slate-800 text-sm">${sym}${Math.round(d.price * rate)} <span class="text-[10px] font-normal text-slate-500">per person</span></span>
                                 </div>
                                 <a href="${searchUrl}" target="_blank" class="w-full text-center block text-xs font-bold text-amber-700 hover:text-amber-800 bg-white border border-amber-300 py-1.5 rounded-lg hover:bg-amber-50 transition">
                                     🍽️ View Food Photos & Reviews
@@ -1172,7 +1194,7 @@
 
         function calculateSavingsGoal() {
             const curr = document.getElementById('currencySelect').value;
-            const sym = currencySymbols[curr] || '£';
+            const sym = currencySymbols[curr] &amp;&amp; currencySymbols[curr] !== undefined ? currencySymbols[curr] : '£';
             
             const rawTotalText = document.getElementById('displayTotalCost').textContent;
             const totalCost = parseFloat(rawTotalText.replace(/[^0-9.]/g, '')) || 0;
@@ -1260,6 +1282,9 @@
                 price: price,
                 desc: "User added custom attraction."
             });
+            // Update input activities value to match sum
+            const currentSum = city.activitiesList.reduce((sum, item) => sum + item.price, 0);
+            document.getElementById('inputActivities').value = currentSum;
             updateCalculations();
         }
 
