@@ -1,448 +1,4 @@
-<!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WanderBudget - Intelligent Travel Budget Calculator</title>
-
-    <!-- Tab Favicon Logo (SVG Badge) -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2314b8a6'/><path d='M25 50 L75 25 L60 50 L75 75 Z' fill='white'/></svg>">
-    
-    <!-- PWA Web App Manifest -->
-    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIldhbmRlckJ1ZGdldCAtIFRyYXZlbCBDYWxjdWxhdG9yIiwKICAic2hvcnRfbmFtZSI6ICJXYW5kZXJCdWRnZXQiLAogICJzdGFydF91cmwiOiAiLi8iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmOGZhZmMiLAogICJ0aGVtZV9jb2xvciI6ICIjMDRiOGE2IiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sLDxzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTAwIDEwMCc+PHJlY3Qgd2lkdGg9JzEwMCcgaGVpZ2h0PScxMDAnIHJ4PScyMCcgZmlsbD0nJTIzMDRiOGE2Jy8+PHBhdGggZD0nTTI1IDUwIEw3NSA4NSBMNjAgNTAgTDc1IDc1IFonIGZpbGw9J3doaXRlJy8+PC9zdmc+\",\n      InNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIiwKICAgICAgImZ1cm5pc2giOiAieWFueSIKICAgIH0KICBdCn0=">
-    
-    <!-- Mobile / iOS PWA Support -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="WanderBudget">
-    <meta name="theme-color" content="#0d9488">
-
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50: '#f0fdfa',
-                            100: '#ccfbf1',
-                            500: '#14b8a6',
-                            600: '#0d9488',
-                            700: '#0f766e',
-                            900: '#134e4a',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        .glass-card {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(229, 231, 235, 0.8);
-        }
-    </style>
-</head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col font-sans">
-
-    <!-- Header -->
-    <header class="sticky top-0 z-50 glass-card border-b border-slate-200/80 bg-white/90">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="p-2 bg-brand-500 text-white rounded-xl shadow-md">
-                    <i data-lucide="plane" class="w-6 h-6"></i>
-                </div>
-                <div>
-                    <h1 class="text-xl font-bold bg-gradient-to-r from-brand-700 to-teal-600 bg-clip-text text-transparent">WanderBudget</h1>
-                    <p class="text-xs text-slate-500 font-medium">Smart Travel Planner</p>
-                </div>
-            </div>
-
-            <!-- Header Action Controls -->
-            <div class="flex items-center gap-3">
-                <!-- Single/Multi Toggle Switch -->
-                <div class="bg-slate-100 p-1 rounded-xl flex text-xs font-semibold">
-                    <button id="btnModeSingle" onclick="setMode('single')" class="px-3 py-1.5 rounded-lg transition-all shadow-sm bg-white text-slate-800">
-                        Single City
-                    </button>
-                    <button id="btnModeMulti" onclick="setMode('multi')" class="px-3 py-1.5 rounded-lg transition-all text-slate-500 hover:text-slate-800">
-                        Multi-City
-                    </button>
-                </div>
-
-                <!-- Currency Selector (Defaults to GBP) -->
-                <div class="flex items-center gap-1.5 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
-                    <i data-lucide="coins" class="w-4 h-4 text-slate-500"></i>
-                    <select id="currencySelect" onchange="updateCalculations()" class="bg-transparent text-xs font-semibold text-slate-700 outline-none cursor-pointer">
-                        <option value="GBP" selected>GBP (£)</option>
-                        <option value="USD">USD ($)</option>
-                        <option value="EUR">EUR (€)</option>
-                        <option value="JPY">JPY (¥)</option>
-                        <option value="AUD">AUD (A$)</option>
-                        <option value="CAD">CAD (C$)</option>
-                        <option value="INR">INR (₹)</option>
-                    </select>
-                </div>
-
-                <!-- Data Backup / Reset Actions -->
-                <button onclick="exportItineraryJSON()" title="Export JSON" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition">
-                    <i data-lucide="download" class="w-4 h-4"></i>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Content Container -->
-    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-
-        <!-- Top Controls Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            <!-- Left Panel: Trip Controls & Destinations -->
-            <div class="lg:col-span-2 space-y-6">
-                
-                <!-- Single City Mode Controls -->
-                <div id="singleCityPanel" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 space-y-6">
-                    <div class="flex justify-between items-center pb-4 border-b border-slate-100">
-                        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                            <i data-lucide="map-pin" class="w-5 h-5 text-brand-500"></i>
-                            Select Destination
-                        </h2>
-                        <span class="text-xs bg-brand-50 text-brand-700 font-semibold px-2.5 py-1 rounded-full">Simple Mode</span>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Destination City</label>
-                            <select id="singleCitySelect" onchange="handleSingleCityChange()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-medium focus:ring-2 focus:ring-brand-500 outline-none">
-                                <option value="paris">Paris, France</option>
-                                <option value="tokyo">Tokyo, Japan</option>
-                                <option value="bali">Bali, Indonesia</option>
-                                <option value="nyc">New York City, USA</option>
-                                <option value="bangkok">Bangkok, Thailand</option>
-                                <option value="rome">Rome, Italy</option>
-                                <option value="london">London, UK</option>
-                                <option value="sydney">Sydney, Australia</option>
-                                <option value="custom" class="font-bold text-brand-600">+ Add Any City in the World...</option>
-                            </select>
-
-                            <!-- Custom City Input Box (Shown when "+ Add Any City" is selected) -->
-                            <div id="customCityContainer" class="hidden mt-2">
-                                <input type="text" id="customCityName" placeholder="Type city name (e.g. Barcelona, Seoul)" oninput="saveAndRecalculate()" class="w-full bg-slate-50 border border-brand-500 rounded-xl px-3 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-brand-500">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Sub-Location / District</label>
-                            <input type="text" id="singleSubLocation" placeholder="e.g. Montmartre or Le Marais" oninput="saveAndRecalculate()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-medium focus:ring-2 focus:ring-brand-500 outline-none">
-                        </div>
-                    </div>
-
-                    <!-- Duration & Travelers -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Duration</label>
-                            <div class="flex gap-2">
-                                <input type="number" id="singleDuration" value="7" min="1" oninput="saveAndRecalculate()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-semibold outline-none">
-                                <select id="singleDurationUnit" onchange="saveAndRecalculate()" class="bg-slate-50 border border-slate-200 rounded-xl px-2 py-2.5 text-xs font-semibold outline-none">
-                                    <option value="days">Days</option>
-                                    <option value="weeks">Weeks</option>
-                                    <option value="months">Months</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Travelers</label>
-                            <input type="number" id="singleTravelers" value="2" min="1" oninput="saveAndRecalculate()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-semibold outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Travel Style</label>
-                            <select id="singleStyle" onchange="handleSingleCityChange()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-medium outline-none">
-                                <option value="budget">Budget (Hostels / Street Food)</option>
-                                <option value="moderate" selected>Moderate (3★ / Bistros)</option>
-                                <option value="luxury">Luxury (5★ / Fine Dining)</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Multi-City Mode Panel -->
-                <div id="multiCityPanel" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 space-y-6 hidden">
-                    <div class="flex justify-between items-center pb-4 border-b border-slate-100">
-                        <div>
-                            <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                                <i data-lucide="route" class="w-5 h-5 text-brand-500"></i>
-                                Multi-City Itinerary
-                            </h2>
-                            <p class="text-xs text-slate-500">Add multiple stops and custom durations for each location</p>
-                        </div>
-                        <button onclick="addMultiCityStop()" class="flex items-center gap-1.5 text-xs font-bold bg-brand-500 hover:bg-brand-600 text-white px-3 py-2 rounded-xl transition">
-                            <i data-lucide="plus" class="w-4 h-4"></i> Add Destination
-                        </button>
-                    </div>
-
-                    <div id="multiCityList" class="space-y-4">
-                        <!-- Dynamic Stops Injected Here -->
-                    </div>
-                </div>
-
-                <!-- Expense Fine-Tuning & Custom Adjustments -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 space-y-6">
-                    <div class="flex justify-between items-center pb-2 border-b border-slate-100">
-                        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                            <i data-lucide="sliders" class="w-4 h-4 text-brand-500"></i>
-                            Cost Estimates & Adjustments
-                        </h3>
-                        <button onclick="resetDefaults()" class="text-xs text-brand-600 font-semibold hover:underline">Reset to Defaults</button>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Flights / Long Distance Transit</label>
-                            <div class="relative">
-                                <span class="absolute left-3 top-2.5 text-xs text-slate-400 font-bold currencySymbol">£</span>
-                                <input type="number" id="inputFlight" oninput="saveAndRecalculate()" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-7 pr-3 py-2 text-sm font-semibold outline-none">
-                            </div>
-                            <span class="text-[10px] text-slate-400">Total per person</span>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Accommodation / Night</label>
-                            <div class="relative">
-                                <span class="absolute left-3 top-2.5 text-xs text-slate-400 font-bold currencySymbol">£</span>
-                                <input type="number" id="inputHotel" oninput="saveAndRecalculate()" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-7 pr-3 py-2 text-sm font-semibold outline-none">
-                            </div>
-                            <span class="text-[10px] text-slate-400">Per room / per night</span>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Food & Dining / Day</label>
-                            <div class="relative">
-                                <span class="absolute left-3 top-2.5 text-xs text-slate-400 font-bold currencySymbol">£</span>
-                                <input type="number" id="inputFood" oninput="saveAndRecalculate()" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-7 pr-3 py-2 text-sm font-semibold outline-none">
-                            </div>
-                            <span class="text-[10px] text-slate-400">Per person / per day</span>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Local Transit / Day</label>
-                            <div class="relative">
-                                <span class="absolute left-3 top-2.5 text-xs text-slate-400 font-bold currencySymbol">£</span>
-                                <input type="number" id="inputTransit" oninput="saveAndRecalculate()" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-7 pr-3 py-2 text-sm font-semibold outline-none">
-                            </div>
-                            <span class="text-[10px] text-slate-400">Metro, bus, taxis</span>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Activities & Tours / Day</label>
-                            <div class="relative">
-                                <span class="absolute left-3 top-2.5 text-xs text-slate-400 font-bold currencySymbol">£</span>
-                                <input type="number" id="inputActivities" oninput="saveAndRecalculate()" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-7 pr-3 py-2 text-sm font-semibold outline-none">
-                            </div>
-                            <span class="text-[10px] text-slate-400">Museums, guides</span>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Emergency Buffer (%)</label>
-                            <select id="inputBuffer" onchange="saveAndRecalculate()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-semibold outline-none">
-                                <option value="0">0% (None)</option>
-                                <option value="5">5% (Minimal)</option>
-                                <option value="10" selected>10% (Recommended)</option>
-                                <option value="15">15% (Extra Safe)</option>
-                            </select>
-                            <span class="text-[10px] text-slate-400">For unexpected costs</span>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Right Panel: Overall Budget Summary Card -->
-            <div class="space-y-6">
-                <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-brand-900 text-white p-6 rounded-3xl shadow-xl space-y-6 relative overflow-hidden">
-                    <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-brand-500/10 rounded-full blur-2xl"></div>
-
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Total Estimated Budget</p>
-                            <h2 class="text-4xl font-extrabold mt-1 tracking-tight" id="displayTotalCost">£0</h2>
-                        </div>
-                        <span class="text-xs bg-brand-500/20 text-brand-300 font-semibold px-2.5 py-1 rounded-full border border-brand-500/30" id="displayDurationText">7 Days</span>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4 py-4 border-y border-slate-700/80">
-                        <div>
-                            <p class="text-xs text-slate-400">Per Person Total</p>
-                            <p class="text-lg font-bold text-slate-200" id="displayPerPerson">£0</p>
-                        </div>
-                        <div>
-                            <p class="text-xs text-slate-400">Per Person Daily</p>
-                            <p class="text-lg font-bold text-slate-200" id="displayDailyPerPerson">£0</p>
-                        </div>
-                    </div>
-
-                    <!-- Doughnut Chart Canvas -->
-                    <div class="relative h-48 flex justify-center items-center">
-                        <canvas id="budgetChart"></canvas>
-                    </div>
-
-                    <!-- Contingency Explanation -->
-                    <div class="bg-slate-800/80 rounded-xl p-3 text-xs text-slate-300 border border-slate-700/50 flex items-start gap-2.5">
-                        <i data-lucide="shield-alert" class="w-5 h-5 text-brand-400 shrink-0 mt-0.5"></i>
-                        <div>
-                            <span class="font-bold text-white">Emergency Buffer: </span>
-                            <span id="bufferExplanation">Includes £0 safety cushion for unforeseen transit, medical expenses, or rate changes.</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Detailed Recommendations & Tabbed Section -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
-            <!-- Navigation Tabs -->
-            <div class="flex border-b border-slate-200 bg-slate-50/50 overflow-x-auto">
-                <button onclick="setActiveTab('breakdown')" id="tabBtn-breakdown" class="tab-btn px-6 py-4 font-bold text-sm text-brand-600 border-b-2 border-brand-500 bg-white flex items-center gap-2 shrink-0">
-                    <i data-lucide="list-checks" class="w-4 h-4"></i> What Budget Covers
-                </button>
-                <button onclick="setActiveTab('hotels')" id="tabBtn-hotels" class="tab-btn px-6 py-4 font-bold text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center gap-2 shrink-0">
-                    <i data-lucide="hotel" class="w-4 h-4"></i> Hotels & Stays
-                </button>
-                <button onclick="setActiveTab('food')" id="tabBtn-food" class="tab-btn px-6 py-4 font-bold text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center gap-2 shrink-0">
-                    <i data-lucide="utensils" class="w-4 h-4"></i> Restaurants & Food
-                </button>
-                <button onclick="setActiveTab('savings')" id="tabBtn-savings" class="tab-btn px-6 py-4 font-bold text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center gap-2 shrink-0">
-                    <i data-lucide="piggy-bank" class="w-4 h-4"></i> Trip Savings Plan
-                </button>
-            </div>
-
-            <div class="p-6">
-                <!-- TAB 1: BREAKDOWN & INCLUSIONS -->
-                <div id="tabContent-breakdown" class="tab-content space-y-6">
-                    <h3 class="text-base font-bold text-slate-800">Itemized Cost Summary & Inclusions</h3>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
-                            <div class="flex items-center gap-2 font-bold text-slate-800 mb-2">
-                                <i data-lucide="bed" class="w-4 h-4 text-brand-500"></i> Accommodation
-                            </div>
-                            <p class="text-xs text-slate-600">Covers room rate, local city tourist taxes, WiFi, and clean standard lodging in selected location.</p>
-                        </div>
-                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
-                            <div class="flex items-center gap-2 font-bold text-slate-800 mb-2">
-                                <i data-lucide="utensils" class="w-4 h-4 text-brand-500"></i> Meals & Drinks
-                            </div>
-                            <p class="text-xs text-slate-600">Covers breakfast, lunch, dinner, coffee breaks, snacks, and tipping/service charges where customary.</p>
-                        </div>
-                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
-                            <div class="flex items-center gap-2 font-bold text-slate-800 mb-2">
-                                <i data-lucide="bus" class="w-4 h-4 text-brand-500"></i> Local Transport
-                            </div>
-                            <p class="text-xs text-slate-600">Covers daily metro passes, buses, occasional ride-shares, or local suburban rail journeys.</p>
-                        </div>
-                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
-                            <div class="flex items-center gap-2 font-bold text-slate-800 mb-2">
-                                <i data-lucide="ticket" class="w-4 h-4 text-brand-500"></i> Sightseeing & Activities
-                            </div>
-                            <p class="text-xs text-slate-600">Covers museum tickets, entry to historical landmarks, audio guides, or city day tours.</p>
-                        </div>
-                    </div>
-
-                    <!-- Breakdown Table -->
-                    <div class="overflow-x-auto border border-slate-200 rounded-xl">
-                        <table class="w-full text-left text-xs text-slate-600">
-                            <thead class="bg-slate-100 text-slate-700 uppercase font-bold text-[10px]">
-                                <tr>
-                                    <th class="p-3">Category</th>
-                                    <th class="p-3">Daily Per Person</th>
-                                    <th class="p-3">Total Per Person</th>
-                                    <th class="p-3">Group Total</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100 font-medium" id="breakdownTableBody">
-                                <!-- Dynamic rows -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- TAB 2: HOTELS -->
-                <div id="tabContent-hotels" class="tab-content hidden space-y-6">
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-base font-bold text-slate-800">Suggested Stays for Selected Location</h3>
-                        <button onclick="promptAddCustomHotel()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg border border-slate-300">
-                            + Add Custom Stay
-                        </button>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="hotelOptionsGrid">
-                        <!-- Injected Hotel Cards -->
-                    </div>
-                </div>
-
-                <!-- TAB 3: FOOD & DINING -->
-                <div id="tabContent-food" class="tab-content hidden space-y-6">
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-base font-bold text-slate-800">Curated Dining Recommendations</h3>
-                        <button onclick="promptAddCustomDining()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg border border-slate-300">
-                            + Add Custom Spot
-                        </button>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="diningOptionsGrid">
-                        <!-- Injected Dining Cards -->
-                    </div>
-                </div>
-
-                <!-- TAB 4: SAVINGS PLAN -->
-                <div id="tabContent-savings" class="tab-content hidden space-y-6">
-                    <h3 class="text-base font-bold text-slate-800">Trip Savings Goal Calculator</h3>
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Months Until Trip</label>
-                            <input type="number" id="savingsMonths" value="6" min="1" oninput="calculateSavingsGoal()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-semibold outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Already Saved</label>
-                            <div class="relative">
-                                <span class="absolute left-3 top-2 text-xs text-slate-400 font-bold currencySymbol">£</span>
-                                <input type="number" id="savingsCurrent" value="200" min="0" oninput="calculateSavingsGoal()" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-7 pr-3 py-2 text-sm font-semibold outline-none">
-                            </div>
-                        </div>
-                        <div class="bg-brand-50 p-3 rounded-xl border border-brand-200 flex flex-col justify-center">
-                            <span class="text-xs text-brand-700 font-semibold">Required Monthly Savings</span>
-                            <span class="text-xl font-extrabold text-brand-900" id="displayMonthlySavings">£0 / month</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <script>
-        // Service Worker inline registration
-        if ('serviceWorker' in navigator) {
-            const swCode = `
-                self.addEventListener('install', e => self.skipWaiting());
-                self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => new Response('Offline'))));
-            `;
-            const blob = new Blob([swCode], { type: 'application/javascript' });
-            navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
-        }
-
-        // Conversion Rates & Symbols (GBP Default)
-        const exchangeRates = { GBP: 1, USD: 1.28, EUR: 1.18, JPY: 198, AUD: 1.92, CAD: 1.74, INR: 106 };
-        const currencySymbols = { GBP: '£', USD: '$', EUR: '€', JPY: '¥', AUD: 'A$', CAD: 'C$', INR: '₹' };
-
-        let cityDatabase = {
+let cityDatabase = {
             paris: {
                 name: 'Paris',
                 flight: 120,
@@ -451,14 +7,76 @@
                 transit: 10,
                 activities: 18,
                 hotels: [
-                    { name: "St Christopher's Inn Canal", type: "Budget / Hostel", rate: 35, desc: "Modern canal-side hostel near Gare du Nord with social vibe." },
-                    { name: "CitizenM Paris Gare de Lyon", type: "Moderate Hotel", rate: 110, desc: "Stylish design hotel with smart room controls and skybar." },
-                    { name: "Le Roch Hotel & Spa", type: "Luxury 5★", rate: 320, desc: "Boutique 5-star luxury located near Place Vendôme." }
+                    { name: "St Christopher's Inn Canal", type: "Budget / Hostel", rate: 35, desc: "Modern canal-side hostel near Gare du Nord." },
+                    { name: "CitizenM Paris Gare de Lyon", type: "Moderate Hotel", rate: 110, desc: "Stylish design hotel with smart controls." },
+                    { name: "Le Roch Hotel & Spa", type: "Luxury 5★", rate: 320, desc: "Boutique 5-star luxury near Place Vendôme." }
                 ],
                 dining: [
-                    { name: "Marché des Enfants Rouges", type: "Cheap Eats", price: 12, desc: "Historic covered market with fresh international street stalls." },
-                    { name: "Bouillon Chartier", type: "Local Bistro", price: 25, desc: "Classic historic French bistro with affordable traditional dishes." },
-                    { name: "Le Train Bleu", type: "Fine Dining", price: 95, desc: "Opulent Belle Époque dining hall offering legendary cuisine." }
+                    { name: "Marché des Enfants Rouges", type: "Cheap Eats", price: 12, desc: "Historic covered market with food stalls." },
+                    { name: "Bouillon Chartier", type: "Local Bistro", price: 25, desc: "Classic historic French bistro." }
+                ]
+            },
+            rome: {
+                name: 'Rome',
+                flight: 130,
+                baseHotel: { budget: 30, moderate: 95, luxury: 280 },
+                baseFood: { budget: 18, moderate: 40, luxury: 95 },
+                transit: 7,
+                activities: 16,
+                hotels: [
+                    { name: "The YellowSquare Hostel", type: "Budget / Hostel", rate: 30, desc: "Lively social hostel near Termini Station." },
+                    { name: "Hotel Artemide", type: "Moderate Hotel", rate: 95, desc: "Comfortable 4-star central hotel with rooftop terrace." },
+                    { name: "Hotel de la Ville", type: "Luxury 5★", rate: 280, desc: "Luxury Rocco Forte hotel above Spanish Steps." }
+                ],
+                dining: [
+                    { name: "Trapizzino Testaccio", type: "Cheap Eats", price: 8, desc: "Famous Roman stuffed pizza pockets." },
+                    { name: "Trattoria da Enzo al 29", type: "Local Trattoria", price: 22, desc: "Classic Roman pasta spot in Trastevere." }
+                ]
+            },
+            london: {
+                name: 'London',
+                flight: 50,
+                baseHotel: { budget: 40, moderate: 130, luxury: 350 },
+                baseFood: { budget: 22, moderate: 50, luxury: 120 },
+                transit: 12,
+                activities: 20,
+                hotels: [
+                    { name: "Wombat's City Hostel", type: "Budget Hostel", rate: 40, desc: "Popular hostel near Tower Bridge." },
+                    { name: "The Hoxton Holborn", type: "Moderate Hotel", rate: 130, desc: "Boutique hotel in central London." }
+                ],
+                dining: [
+                    { name: "Borough Market", type: "Cheap Eats", price: 12, desc: "Artisanal street food market." },
+                    { name: "Dishoom Covent Garden", type: "Local Bistro", price: 28, desc: "Famous Bombay cafe in London." }
+                ]
+            },
+            bangkok: {
+                name: 'Bangkok',
+                flight: 500,
+                baseHotel: { budget: 12, moderate: 45, luxury: 160 },
+                baseFood: { budget: 6, moderate: 18, luxury: 50 },
+                transit: 4,
+                activities: 10,
+                hotels: [
+                    { name: "Lub d Bangkok Siam", type: "Budget Hostel", rate: 12, desc: "Clean, fun hostel next to Skytrain." },
+                    { name: "Amara Bangkok", type: "Moderate Hotel", rate: 45, desc: "4-star hotel with infinity rooftop pool." }
+                ],
+                dining: [
+                    { name: "Thip Samai Pad Thai", type: "Cheap Eats", price: 4, desc: "Legendary Bangkok Pad Thai restaurant." }
+                ]
+            },
+            sydney: {
+                name: 'Sydney',
+                flight: 750,
+                baseHotel: { budget: 35, moderate: 120, luxury: 310 },
+                baseFood: { budget: 20, moderate: 48, luxury: 110 },
+                transit: 9,
+                activities: 20,
+                hotels: [
+                    { name: "Wake Up! Sydney Central", type: "Budget Hostel", rate: 35, desc: "Award-winning central hostel." },
+                    { name: "Ovolo 1888 Darling Harbour", type: "Moderate Hotel", rate: 120, desc: "Chic woolstore heritage hotel." }
+                ],
+                dining: [
+                    { name: "Sydney Fish Market", type: "Cheap Eats", price: 15, desc: "Fresh oysters and seafood." }
                 ]
             },
             tokyo: {
@@ -468,16 +86,8 @@
                 baseFood: { budget: 18, moderate: 40, luxury: 100 },
                 transit: 8,
                 activities: 15,
-                hotels: [
-                    { name: "Nui. Hostel & Bar Lounge", type: "Budget / Hostel", rate: 30, desc: "Cozy riverside hostel with great coffee lounge in Kuramae." },
-                    { name: "Hotel Gracery Shinjuku", type: "Moderate Hotel", rate: 90, desc: "Famous Godzilla-head hotel in the heart of entertainment district." },
-                    { name: "Park Hyatt Tokyo", type: "Luxury 5★", rate: 290, desc: "Iconic luxury hotel overlooking the Shinjuku skyline." }
-                ],
-                dining: [
-                    { name: "Ichiran Ramen Shinjuku", type: "Cheap Eats", price: 9, desc: "Famous solo-booth tonkotsu ramen experience." },
-                    { name: "Torikizoku Yakitori", type: "Izakaya / Bistro", price: 22, desc: "Popular local pub serving grilled skewers and drinks." },
-                    { name: "Kagurazaka Ishikawa", type: "Fine Dining", price: 110, desc: "3 Michelin Star traditional Kaiseki tasting menu." }
-                ]
+                hotels: [],
+                dining: []
             },
             bali: {
                 name: 'Bali',
@@ -486,16 +96,8 @@
                 baseFood: { budget: 8, moderate: 22, luxury: 60 },
                 transit: 6,
                 activities: 12,
-                hotels: [
-                    { name: "Arya Wellness Retreat", type: "Budget / Hostel", rate: 15, desc: "Boutique wellness hostel located in central Ubud." },
-                    { name: "Komaneka at Bisma", type: "Moderate Resort", rate: 50, desc: "Jungle-view infinity pool resort near Monkey Forest." },
-                    { name: "The Mulia Nusa Dua", type: "Luxury Villa", rate: 200, desc: "World-class beachfront ultra-luxury villa resort." }
-                ],
-                dining: [
-                    { name: "Warung Nia Seminyak", type: "Cheap Eats", price: 6, desc: "Famous local warung serving traditional pork ribs and satay." },
-                    { name: "Cuca Flavor Restaurant", type: "Bistro / Tapas", price: 20, desc: "Innovative tapas using fresh local Indonesian ingredients." },
-                    { name: "Locavore Ubud", type: "Fine Dining", price: 65, desc: "Award-winning fine dining highlighting local sustainable produce." }
-                ]
+                hotels: [],
+                dining: []
             },
             nyc: {
                 name: 'New York City',
@@ -504,16 +106,8 @@
                 baseFood: { budget: 25, moderate: 60, luxury: 140 },
                 transit: 12,
                 activities: 25,
-                hotels: [
-                    { name: "HI NYC Hostel", type: "Budget Hostel", rate: 60, desc: "Spacious brownstone hostel steps from Central Park." },
-                    { name: "Moxy NYC Times Square", type: "Moderate Hotel", rate: 180, desc: "Trendy boutique hotel with vibrant rooftop bar." },
-                    { name: "The Plaza Hotel", type: "Luxury 5★", rate: 450, desc: "Legendary 5-star hotel at Fifth Avenue and Central Park." }
-                ],
-                dining: [
-                    { name: "Joe's Pizza Greenwich Village", type: "Cheap Eats", price: 8, desc: "Classic iconic New York style thin-crust pizza slices." },
-                    { name: "Katz's Delicatessen", type: "Classic Deli", price: 28, desc: "Famous pastrami on rye sandwich institution." },
-                    { name: "Eleven Madison Park", type: "Fine Dining", price: 160, desc: "Three Michelin-starred plant-based fine dining." }
-                ]
+                hotels: [],
+                dining: []
             },
             custom: {
                 name: 'Custom City',
@@ -526,145 +120,3 @@
                 dining: []
             }
         };
-
-        // Persistent State
-        let currentMode = 'single';
-        let multiStops = [
-            { id: 1, city: 'paris', subLoc: 'Montmartre', nights: 4, style: 'moderate' },
-            { id: 2, city: 'tokyo', subLoc: 'Shinjuku', nights: 5, style: 'moderate' }
-        ];
-        let myChart = null;
-
-        document.addEventListener('DOMContentLoaded', () => {
-            loadSavedState();
-            lucide.createIcons();
-            handleSingleCityChange();
-        });
-
-        function saveAndRecalculate() {
-            saveStateToStorage();
-            updateCalculations();
-        }
-
-        function saveStateToStorage() {
-            const state = {
-                currentMode,
-                selectedCity: document.getElementById('singleCitySelect').value,
-                customCityName: document.getElementById('customCityName').value,
-                subLocation: document.getElementById('singleSubLocation').value,
-                duration: document.getElementById('singleDuration').value,
-                durationUnit: document.getElementById('singleDurationUnit').value,
-                travelers: document.getElementById('singleTravelers').value,
-                style: document.getElementById('singleStyle').value,
-                currency: document.getElementById('currencySelect').value,
-                multiStops,
-                inputs: {
-                    flight: document.getElementById('inputFlight').value,
-                    hotel: document.getElementById('inputHotel').value,
-                    food: document.getElementById('inputFood').value,
-                    transit: document.getElementById('inputTransit').value,
-                    activities: document.getElementById('inputActivities').value,
-                    buffer: document.getElementById('inputBuffer').value,
-                }
-            };
-            localStorage.setItem('wanderbudget_data', JSON.stringify(state));
-        }
-
-        function loadSavedState() {
-            const raw = localStorage.getItem('wanderbudget_data');
-            if (!raw) return;
-            try {
-                const data = JSON.parse(raw);
-                if (data.currentMode) setMode(data.currentMode);
-                if (data.selectedCity) document.getElementById('singleCitySelect').value = data.selectedCity;
-                if (data.customCityName) document.getElementById('customCityName').value = data.customCityName;
-                if (data.subLocation) document.getElementById('singleSubLocation').value = data.subLocation;
-                if (data.duration) document.getElementById('singleDuration').value = data.duration;
-                if (data.durationUnit) document.getElementById('singleDurationUnit').value = data.durationUnit;
-                if (data.travelers) document.getElementById('singleTravelers').value = data.travelers;
-                if (data.style) document.getElementById('singleStyle').value = data.style;
-                if (data.currency) document.getElementById('currencySelect').value = data.currency;
-                if (data.multiStops) multiStops = data.multiStops;
-            } catch (e) {}
-        }
-
-        function setMode(mode) {
-            currentMode = mode;
-            const btnS = document.getElementById('btnModeSingle');
-            const btnM = document.getElementById('btnModeMulti');
-            const panelS = document.getElementById('singleCityPanel');
-            const panelM = document.getElementById('multiCityPanel');
-
-            if (mode === 'single') {
-                btnS.className = "px-3 py-1.5 rounded-lg transition-all shadow-sm bg-white text-slate-800";
-                btnM.className = "px-3 py-1.5 rounded-lg transition-all text-slate-500 hover:text-slate-800";
-                panelS.classList.remove('hidden');
-                panelM.classList.add('hidden');
-                handleSingleCityChange();
-            } else {
-                btnM.className = "px-3 py-1.5 rounded-lg transition-all shadow-sm bg-white text-slate-800";
-                btnS.className = "px-3 py-1.5 rounded-lg transition-all text-slate-500 hover:text-slate-800";
-                panelM.classList.remove('hidden');
-                panelS.classList.add('hidden');
-                renderMultiCityList();
-            }
-        }
-
-        function handleSingleCityChange() {
-            const cityKey = document.getElementById('singleCitySelect').value;
-            const customContainer = document.getElementById('customCityContainer');
-
-            if (cityKey === 'custom') {
-                customContainer.classList.remove('hidden');
-            } else {
-                customContainer.classList.add('hidden');
-            }
-
-            const style = document.getElementById('singleStyle').value;
-            const city = cityDatabase[cityKey] || cityDatabase['paris'];
-
-            document.getElementById('inputFlight').value = city.flight;
-            document.getElementById('inputHotel').value = city.baseHotel[style];
-            document.getElementById('inputFood').value = city.baseFood[style];
-            document.getElementById('inputTransit').value = city.transit;
-            document.getElementById('inputActivities').value = city.activities;
-
-            saveAndRecalculate();
-        }
-
-        function resetDefaults() {
-            handleSingleCityChange();
-        }
-
-        function getDurationInDays() {
-            if (currentMode === 'single') {
-                const num = parseFloat(document.getElementById('singleDuration').value) || 1;
-                const unit = document.getElementById('singleDurationUnit').value;
-                if (unit === 'weeks') return num * 7;
-                if (unit === 'months') return num * 30;
-                return num;
-            } else {
-                return multiStops.reduce((sum, stop) => sum + (parseFloat(stop.nights) || 1), 0);
-            }
-        }
-
-        function updateCalculations() {
-            const curr = document.getElementById('currencySelect').value;
-            const rate = exchangeRates[curr] || 1;
-            const sym = currencySymbols[curr] || '£';
-
-            document.querySelectorAll('.currencySymbol').forEach(el => el.textContent = sym);
-
-            const days = getDurationInDays();
-            const travelers = parseFloat(document.getElementById('singleTravelers').value) || 1;
-
-            const baseFlight = parseFloat(document.getElementById('inputFlight').value) || 0;
-            const baseHotel = parseFloat(document.getElementById('inputHotel').value) || 0;
-            const baseFood = parseFloat(document.getElementById('inputFood').value) || 0;
-            const baseTransit = parseFloat(document.getElementById('inputTransit').value) || 0;
-            const baseActivities = parseFloat(document.getElementById('inputActivities').value) || 0;
-            const bufferPct = (parseFloat(document.getElementById('inputBuffer').value) || 0) / 100;
-
-            const totalFlight = baseFlight * rate * travelers;
-            const totalHotel = baseHotel * rate * days;
-            const totalFood = baseFood * rate * days * travelers;
