@@ -49,7 +49,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col font-sans">
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col font-sans" onclick="closeCitySuggestions()">
 
     <!-- Header -->
     <header class="sticky top-0 z-50 glass-card border-b border-slate-200/80 bg-white/90">
@@ -118,25 +118,21 @@
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
+                        <!-- Auto-Suggest City Search Input -->
+                        <div class="relative" onclick="event.stopPropagation()">
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Destination City</label>
-                            <select id="singleCitySelect" onchange="handleSingleCityChange()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-medium focus:ring-2 focus:ring-brand-500 outline-none">
-                                <option value="paris">Paris, France</option>
-                                <option value="rome">Rome, Italy</option>
-                                <option value="london">London, UK</option>
-                                <option value="tokyo">Tokyo, Japan</option>
-                                <option value="bangkok">Bangkok, Thailand</option>
-                                <option value="sydney">Sydney, Australia</option>
-                                <option value="bali">Bali, Indonesia</option>
-                                <option value="nyc">New York City, USA</option>
-                                <option value="custom" class="font-bold text-brand-600">+ Add Any City in the World...</option>
-                            </select>
+                            
+                            <div class="relative flex items-center">
+                                <input type="text" id="citySearchInput" value="Rome, Italy" oninput="handleCitySearchInput(this.value)" onfocus="showCitySuggestions()" placeholder="Type city name (e.g. Paris, Shanghai, Tokyo)..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-3 pr-8 py-2.5 text-sm font-semibold text-slate-800 outline-none focus:ring-2 focus:ring-brand-500">
+                                <button onclick="clearCityInput()" class="absolute right-2.5 text-slate-400 hover:text-slate-600 text-sm font-bold p-1">✕</button>
+                            </div>
 
-                            <!-- Custom City Input Box -->
-                            <div id="customCityContainer" class="hidden mt-2">
-                                <input type="text" id="customCityName" placeholder="Type city name (e.g. Barcelona, Seoul)" oninput="saveAndRecalculate()" class="w-full bg-slate-50 border border-brand-500 rounded-xl px-3 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-brand-500">
+                            <!-- Floating Auto-Suggest Dropdown Menu -->
+                            <div id="citySuggestionsDropdown" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 max-h-56 overflow-y-auto divide-y divide-slate-100">
+                                <!-- Suggestions injected dynamically -->
                             </div>
                         </div>
+
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Sub-Location / District</label>
                             <input type="text" id="singleSubLocation" placeholder="e.g. Montmartre or Trastevere" oninput="saveAndRecalculate()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-medium focus:ring-2 focus:ring-brand-500 outline-none">
@@ -148,7 +144,7 @@
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Duration</label>
                             <div class="flex gap-2">
-                                <input type="number" id="singleDuration" value="7" min="1" oninput="saveAndRecalculate()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-semibold outline-none">
+                                <input type="number" id="singleDuration" value="5" min="1" oninput="saveAndRecalculate()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-semibold outline-none">
                                 <select id="singleDurationUnit" onchange="saveAndRecalculate()" class="bg-slate-50 border border-slate-200 rounded-xl px-2 py-2.5 text-xs font-semibold outline-none">
                                     <option value="days">Days</option>
                                     <option value="weeks">Weeks</option>
@@ -162,7 +158,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Travel Style</label>
-                            <select id="singleStyle" onchange="handleSingleCityChange()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-medium outline-none">
+                            <select id="singleStyle" onchange="applySelectedCityDefaults()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-medium outline-none">
                                 <option value="budget">Budget (Hostels / Street Food)</option>
                                 <option value="moderate" selected>Moderate (3★ / Bistros)</option>
                                 <option value="luxury">Luxury (5★ / Fine Dining)</option>
@@ -198,7 +194,7 @@
                             <i data-lucide="sliders" class="w-4 h-4 text-brand-500"></i>
                             Cost Estimates & Adjustments
                         </h3>
-                        <button onclick="resetDefaults()" class="text-xs text-brand-600 font-semibold hover:underline">Reset to Defaults</button>
+                        <button onclick="resetDefaults()" class="text-xs text-brand-600 font-semibold hover:underline">Reset to City Defaults</button>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -272,7 +268,7 @@
                             <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Total Estimated Budget</p>
                             <h2 class="text-4xl font-extrabold mt-1 tracking-tight" id="displayTotalCost">£0</h2>
                         </div>
-                        <span class="text-xs bg-brand-500/20 text-brand-300 font-semibold px-2.5 py-1 rounded-full border border-brand-500/30" id="displayDurationText">7 Days</span>
+                        <span class="text-xs bg-brand-500/20 text-brand-300 font-semibold px-2.5 py-1 rounded-full border border-brand-500/30" id="displayDurationText">5 Days</span>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4 py-4 border-y border-slate-700/80">
@@ -375,7 +371,7 @@
                 <!-- TAB 2: HOTELS -->
                 <div id="tabContent-hotels" class="tab-content hidden space-y-6">
                     <div class="flex justify-between items-center">
-                        <h3 class="text-base font-bold text-slate-800">Suggested Stays for Selected Location</h3>
+                        <h3 class="text-base font-bold text-slate-800">Hotels & Stays (Multi-Star Options)</h3>
                         <button onclick="promptAddCustomHotel()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg border border-slate-300">
                             + Add Custom Stay
                         </button>
@@ -389,7 +385,7 @@
                 <!-- TAB 3: FOOD & DINING -->
                 <div id="tabContent-food" class="tab-content hidden space-y-6">
                     <div class="flex justify-between items-center">
-                        <h3 class="text-base font-bold text-slate-800">Curated Dining Recommendations</h3>
+                        <h3 class="text-base font-bold text-slate-800">Dining Options & Local Eateries</h3>
                         <button onclick="promptAddCustomDining()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg border border-slate-300">
                             + Add Custom Spot
                         </button>
@@ -442,146 +438,155 @@
         const exchangeRates = { GBP: 1, USD: 1.28, EUR: 1.18, JPY: 198, AUD: 1.92, CAD: 1.74, INR: 106 };
         const currencySymbols = { GBP: '£', USD: '$', EUR: '€', JPY: '¥', AUD: 'A$', CAD: 'C$', INR: '₹' };
 
+        // City Database with Multi-Tier Hotels (1-5 Star Ratings) and Dining Options
         let cityDatabase = {
-            paris: {
-                name: 'Paris',
-                flight: 120,
-                baseHotel: { budget: 35, moderate: 110, luxury: 320 },
-                baseFood: { budget: 20, moderate: 45, luxury: 110 },
-                transit: 10,
-                activities: 18,
-                hotels: [
-                    { name: "St Christopher's Inn Canal", type: "Budget / Hostel", rate: 35, desc: "Modern canal-side hostel near Gare du Nord." },
-                    { name: "CitizenM Paris Gare de Lyon", type: "Moderate Hotel", rate: 110, desc: "Stylish design hotel with smart controls." },
-                    { name: "Le Roch Hotel & Spa", type: "Luxury 5★", rate: 320, desc: "Boutique 5-star luxury near Place Vendôme." }
-                ],
-                dining: [
-                    { name: "Marché des Enfants Rouges", type: "Cheap Eats", price: 12, desc: "Historic covered market with food stalls." },
-                    { name: "Bouillon Chartier", type: "Local Bistro", price: 25, desc: "Classic historic French bistro." }
-                ]
-            },
             rome: {
-                name: 'Rome',
+                name: 'Rome, Italy',
                 flight: 130,
                 baseHotel: { budget: 30, moderate: 95, luxury: 280 },
                 baseFood: { budget: 18, moderate: 40, luxury: 95 },
                 transit: 7,
                 activities: 16,
                 hotels: [
-                    { name: "The YellowSquare Hostel", type: "Budget / Hostel", rate: 30, desc: "Lively social hostel near Termini Station." },
-                    { name: "Hotel Artemide", type: "Moderate Hotel", rate: 95, desc: "Comfortable 4-star central hotel with rooftop terrace." },
-                    { name: "Hotel de la Ville", type: "Luxury 5★", rate: 280, desc: "Luxury Rocco Forte hotel above Spanish Steps." }
+                    { name: "YellowSquare Rome", stars: 2, rating: "4.7 ★★★★★", type: "Budget Hostel", rate: 30, desc: "Fun social hostel near Termini with shared & private rooms." },
+                    { name: "Hotel Artemide", stars: 4, rating: "4.8 ★★★★★", type: "4★ Hotel", rate: 95, desc: "Comfortable 4-star central hotel with rooftop panoramic bar." },
+                    { name: "Hotel de la Ville", stars: 5, rating: "4.9 ★★★★★", type: "5★ Luxury", rate: 280, desc: "Ultra-luxury Rocco Forte hotel sitting atop Spanish Steps." }
                 ],
                 dining: [
-                    { name: "Trapizzino Testaccio", type: "Cheap Eats", price: 8, desc: "Famous Roman stuffed pizza pockets." },
-                    { name: "Trattoria da Enzo al 29", type: "Local Trattoria", price: 22, desc: "Classic Roman pasta spot in Trastevere." }
+                    { name: "Trapizzino Testaccio", rating: "4.6 ★", type: "Street Food", price: 8, desc: "Famous Roman stuffed pizza pockets and suppli." },
+                    { name: "Trattoria da Enzo al 29", rating: "4.8 ★", type: "Local Trattoria", price: 22, desc: "Classic Roman pasta spot serving Cacio e Pepe in Trastevere." },
+                    { name: "La Pergola", rating: "4.9 ★", type: "3 Michelin Fine Dining", price: 180, desc: "Rome's legendary 3-star Michelin rooftop restaurant." }
+                ]
+            },
+            paris: {
+                name: 'Paris, France',
+                flight: 120,
+                baseHotel: { budget: 35, moderate: 110, luxury: 320 },
+                baseFood: { budget: 20, moderate: 45, luxury: 110 },
+                transit: 10,
+                activities: 18,
+                hotels: [
+                    { name: "St Christopher's Canal", stars: 2, rating: "4.4 ★★★★☆", type: "Hostel / Stay", rate: 35, desc: "Modern canal-side hostel near Gare du Nord." },
+                    { name: "CitizenM Gare de Lyon", stars: 4, rating: "4.7 ★★★★★", type: "4★ Hotel", rate: 110, desc: "Stylish design hotel with smart room controls." },
+                    { name: "Le Roch Hotel & Spa", stars: 5, rating: "4.9 ★★★★★", type: "5★ Luxury", rate: 320, desc: "Boutique 5-star luxury located near Place Vendôme." }
+                ],
+                dining: [
+                    { name: "Marché des Enfants Rouges", rating: "4.6 ★", type: "Market Food", price: 12, desc: "Historic covered market with food stalls." },
+                    { name: "Bouillon Chartier", rating: "4.5 ★", type: "Classic Bistro", price: 25, desc: "Classic historic French bistro with quick service." }
                 ]
             },
             london: {
-                name: 'London',
+                name: 'London, UK',
                 flight: 50,
                 baseHotel: { budget: 40, moderate: 130, luxury: 350 },
                 baseFood: { budget: 22, moderate: 50, luxury: 120 },
                 transit: 12,
                 activities: 20,
                 hotels: [
-                    { name: "Wombat's City Hostel", type: "Budget Hostel", rate: 40, desc: "Popular hostel near Tower Bridge." },
-                    { name: "The Hoxton Holborn", type: "Moderate Hotel", rate: 130, desc: "Boutique hotel in central London." }
+                    { name: "Wombat's City Hostel", stars: 2, rating: "4.6 ★★★★★", type: "Budget Hostel", rate: 40, desc: "Popular hostel near Tower Bridge." },
+                    { name: "The Hoxton Holborn", stars: 4, rating: "4.7 ★★★★★", type: "4★ Hotel", rate: 130, desc: "Boutique hotel in central London." },
+                    { name: "The Ritz London", stars: 5, rating: "4.9 ★★★★★", type: "5★ Luxury", rate: 450, desc: "World-famous iconic 5-star Mayfair hotel." }
                 ],
                 dining: [
-                    { name: "Borough Market", type: "Cheap Eats", price: 12, desc: "Artisanal street food market." },
-                    { name: "Dishoom Covent Garden", type: "Local Bistro", price: 28, desc: "Famous Bombay cafe in London." }
+                    { name: "Borough Market Stalls", rating: "4.8 ★", type: "Street Food", price: 12, desc: "Artisanal street food market near London Bridge." },
+                    { name: "Dishoom Covent Garden", rating: "4.7 ★", type: "Bombay Cafe", price: 28, desc: "Famous Indian dining hall in London." }
+                ]
+            },
+            shanghai: {
+                name: 'Shanghai, China',
+                flight: 520,
+                baseHotel: { budget: 22, moderate: 75, luxury: 230 },
+                baseFood: { budget: 10, moderate: 28, luxury: 80 },
+                transit: 5,
+                activities: 14,
+                hotels: [
+                    { name: "The Captain Hostel Bund", stars: 2, rating: "4.3 ★★★★☆", type: "Budget Hostel", rate: 22, desc: "Nautical-themed hostel with Bund skyline rooftop." },
+                    { name: "URBN Hotel Shanghai", stars: 4, rating: "4.6 ★★★★★", type: "4★ Eco Boutique", rate: 75, desc: "Chic eco-friendly boutique hotel in Jing'an." },
+                    { name: "The Peninsula Shanghai", stars: 5, rating: "4.9 ★★★★★", type: "5★ Luxury", rate: 230, desc: "Ultra-luxury hotel directly overlooking Huangpu River." }
+                ],
+                dining: [
+                    { name: "Jia Jia Tang Bao", rating: "4.7 ★", type: "Cheap Eats", price: 6, desc: "Famous local spot for authentic Shanghai soup dumplings (Xiaolongbao)." },
+                    { name: "Lost Heaven Yunnan", rating: "4.8 ★", type: "Regional Cuisine", price: 30, desc: "Atmospheric regional Yunnanese dining near the Bund." }
                 ]
             },
             tokyo: {
-                name: 'Tokyo',
+                name: 'Tokyo, Japan',
                 flight: 650,
                 baseHotel: { budget: 30, moderate: 90, luxury: 290 },
                 baseFood: { budget: 18, moderate: 40, luxury: 100 },
                 transit: 8,
                 activities: 15,
                 hotels: [
-                    { name: "Nui. Hostel & Bar Lounge", type: "Budget / Hostel", rate: 30, desc: "Cozy riverside hostel with great coffee lounge in Kuramae." },
-                    { name: "Hotel Gracery Shinjuku", type: "Moderate Hotel", rate: 90, desc: "Famous Godzilla-head hotel in Shinjuku." }
+                    { name: "Nui. Hostel & Bar", stars: 2, rating: "4.6 ★★★★★", type: "Budget Hostel", rate: 30, desc: "Cozy riverside hostel lounge in Kuramae." },
+                    { name: "Hotel Gracery Shinjuku", stars: 4, rating: "4.7 ★★★★★", type: "4★ Hotel", rate: 90, desc: "Famous Godzilla-head hotel in Shinjuku." },
+                    { name: "Park Hyatt Tokyo", stars: 5, rating: "4.9 ★★★★★", type: "5★ Luxury", rate: 290, desc: "Iconic luxury tower hotel with Mount Fuji views." }
                 ],
                 dining: [
-                    { name: "Ichiran Ramen Shinjuku", type: "Cheap Eats", price: 9, desc: "Famous solo-booth tonkotsu ramen." }
+                    { name: "Ichiran Shinjuku", rating: "4.7 ★", type: "Ramen", price: 9, desc: "Famous solo-booth tonkotsu ramen." }
                 ]
             },
             bangkok: {
-                name: 'Bangkok',
+                name: 'Bangkok, Thailand',
                 flight: 500,
                 baseHotel: { budget: 12, moderate: 45, luxury: 160 },
                 baseFood: { budget: 6, moderate: 18, luxury: 50 },
                 transit: 4,
                 activities: 10,
                 hotels: [
-                    { name: "Lub d Bangkok Siam", type: "Budget Hostel", rate: 12, desc: "Clean, fun hostel next to Skytrain." },
-                    { name: "Amara Bangkok", type: "Moderate Hotel", rate: 45, desc: "4-star hotel with infinity rooftop pool." }
+                    { name: "Lub d Siam", stars: 2, rating: "4.5 ★★★★☆", type: "Budget Hostel", rate: 12, desc: "Clean hostel right next to BTS Skytrain." },
+                    { name: "Amara Bangkok", stars: 4, rating: "4.7 ★★★★★", type: "4★ Hotel", rate: 45, desc: "4-star infinity rooftop pool hotel." }
                 ],
                 dining: [
-                    { name: "Thip Samai Pad Thai", type: "Cheap Eats", price: 4, desc: "Legendary Bangkok Pad Thai restaurant." }
+                    { name: "Thip Samai Pad Thai", rating: "4.6 ★", type: "Street Food", price: 4, desc: "Legendary Bangkok Pad Thai institution." }
                 ]
             },
             sydney: {
-                name: 'Sydney',
+                name: 'Sydney, Australia',
                 flight: 750,
                 baseHotel: { budget: 35, moderate: 120, luxury: 310 },
                 baseFood: { budget: 20, moderate: 48, luxury: 110 },
                 transit: 9,
                 activities: 20,
                 hotels: [
-                    { name: "Wake Up! Sydney Central", type: "Budget Hostel", rate: 35, desc: "Award-winning central hostel." },
-                    { name: "Ovolo 1888 Darling Harbour", type: "Moderate Hotel", rate: 120, desc: "Chic woolstore heritage hotel." }
+                    { name: "Wake Up! Sydney", stars: 2, rating: "4.5 ★★★★☆", type: "Hostel", rate: 35, desc: "Central location with lively travel community." }
                 ],
                 dining: [
-                    { name: "Sydney Fish Market", type: "Cheap Eats", price: 15, desc: "Fresh oysters and seafood." }
+                    { name: "Sydney Fish Market", rating: "4.6 ★", type: "Seafood Market", price: 15, desc: "Fresh oysters and sashimi by the harbor." }
                 ]
             },
             bali: {
-                name: 'Bali',
+                name: 'Bali, Indonesia',
                 flight: 580,
                 baseHotel: { budget: 15, moderate: 50, luxury: 200 },
                 baseFood: { budget: 8, moderate: 22, luxury: 60 },
                 transit: 6,
                 activities: 12,
                 hotels: [
-                    { name: "Arya Wellness Retreat", type: "Budget Hostel", rate: 15, desc: "Boutique wellness hostel in Ubud." },
-                    { name: "Komaneka at Bisma", type: "Moderate Resort", rate: 50, desc: "Jungle-view infinity pool resort." }
+                    { name: "Arya Wellness Retreat", stars: 2, rating: "4.7 ★★★★★", type: "Hostel/Resort", rate: 15, desc: "Boutique wellness stay in Ubud." }
                 ],
                 dining: [
-                    { name: "Warung Nia Seminyak", type: "Cheap Eats", price: 6, desc: "Famous local warung serving satay." }
+                    { name: "Warung Nia", rating: "4.6 ★", type: "Local Warung", price: 6, desc: "Traditional satay and pork ribs." }
                 ]
             },
             nyc: {
-                name: 'New York City',
+                name: 'New York City, USA',
                 flight: 350,
                 baseHotel: { budget: 60, moderate: 180, luxury: 450 },
                 baseFood: { budget: 25, moderate: 60, luxury: 140 },
                 transit: 12,
                 activities: 25,
                 hotels: [
-                    { name: "HI NYC Hostel", type: "Budget Hostel", rate: 60, desc: "Spacious brownstone hostel steps from Central Park." },
-                    { name: "Moxy NYC Times Square", type: "Moderate Hotel", rate: 180, desc: "Trendy boutique hotel with rooftop bar." }
+                    { name: "HI NYC Hostel", stars: 2, rating: "4.4 ★★★★☆", type: "Hostel", rate: 60, desc: "Brownstone hostel steps from Central Park." }
                 ],
                 dining: [
-                    { name: "Joe's Pizza Greenwich Village", type: "Cheap Eats", price: 8, desc: "Classic New York slice." }
+                    { name: "Joe's Pizza", rating: "4.8 ★", type: "Pizza Slice", price: 8, desc: "Classic Greenwich Village slice." }
                 ]
-            },
-            custom: {
-                name: 'Custom City',
-                flight: 250,
-                baseHotel: { budget: 30, moderate: 85, luxury: 220 },
-                baseFood: { budget: 15, moderate: 35, luxury: 85 },
-                transit: 8,
-                activities: 15,
-                hotels: [],
-                dining: []
             }
         };
 
         // Persistent State
         let currentMode = 'single';
+        let currentSelectedCityKey = 'rome';
         let multiStops = [
             { id: 1, city: 'paris', subLoc: 'Montmartre', nights: 4, style: 'moderate' },
             { id: 2, city: 'tokyo', subLoc: 'Shinjuku', nights: 5, style: 'moderate' }
@@ -591,8 +596,106 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadSavedState();
             lucide.createIcons();
-            handleSingleCityChange();
+            applySelectedCityDefaults();
         });
+
+        // City Auto-Suggest Logic
+        function showCitySuggestions() {
+            const dropdown = document.getElementById('citySuggestionsDropdown');
+            dropdown.classList.remove('hidden');
+            renderCitySuggestions(document.getElementById('citySearchInput').value);
+        }
+
+        function closeCitySuggestions() {
+            const dropdown = document.getElementById('citySuggestionsDropdown');
+            dropdown.classList.add('hidden');
+        }
+
+        function clearCityInput() {
+            const input = document.getElementById('citySearchInput');
+            input.value = '';
+            input.focus();
+            showCitySuggestions();
+        }
+
+        function handleCitySearchInput(val) {
+            showCitySuggestions();
+            renderCitySuggestions(val);
+        }
+
+        function renderCitySuggestions(query) {
+            const dropdown = document.getElementById('citySuggestionsDropdown');
+            const q = query.toLowerCase().trim();
+
+            const matches = Object.keys(cityDatabase).filter(key => {
+                const c = cityDatabase[key];
+                return c.name.toLowerCase().includes(q) || key.includes(q);
+            });
+
+            let html = '';
+            matches.forEach(key => {
+                const city = cityDatabase[key];
+                html += `
+                    <div onclick="selectCitySuggestion('${key}')" class="px-4 py-2.5 hover:bg-slate-50 cursor-pointer flex justify-between items-center transition">
+                        <span class="font-bold text-xs text-slate-800">${city.name}</span>
+                        <span class="text-[10px] text-brand-600 bg-brand-50 font-semibold px-2 py-0.5 rounded-full">Preset</span>
+                    </div>
+                `;
+            });
+
+            if (q.length > 0) {
+                html += `
+                    <div onclick="selectCustomCity('${query}')" class="px-4 py-2.5 hover:bg-brand-50 cursor-pointer text-xs font-bold text-brand-700 flex items-center gap-2 border-t border-slate-100">
+                        <span>+ Set custom location as "${query}"</span>
+                    </div>
+                `;
+            }
+
+            dropdown.innerHTML = html;
+        }
+
+        function selectCitySuggestion(key) {
+            currentSelectedCityKey = key;
+            const city = cityDatabase[key];
+            document.getElementById('citySearchInput').value = city.name;
+            closeCitySuggestions();
+            applySelectedCityDefaults();
+        }
+
+        function selectCustomCity(name) {
+            currentSelectedCityKey = 'custom_' + name.toLowerCase().replace(/[^a-z0-9]/g, '');
+            cityDatabase[currentSelectedCityKey] = {
+                name: name,
+                flight: 250,
+                baseHotel: { budget: 30, moderate: 85, luxury: 220 },
+                baseFood: { budget: 15, moderate: 35, luxury: 85 },
+                transit: 8,
+                activities: 15,
+                hotels: [
+                    { name: name + " Boutique Stay", stars: 3, rating: "4.5 ★★★★☆", type: "3★ Hotel", rate: 85, desc: "Standard comfortable boutique stay." }
+                ],
+                dining: [
+                    { name: name + " Local Eatery", rating: "4.6 ★", type: "Bistro", price: 20, desc: "Authentic local dishes and specialties." }
+                ]
+            };
+
+            document.getElementById('citySearchInput').value = name;
+            closeCitySuggestions();
+            applySelectedCityDefaults();
+        }
+
+        function applySelectedCityDefaults() {
+            const style = document.getElementById('singleStyle').value;
+            const city = cityDatabase[currentSelectedCityKey] || cityDatabase['rome'];
+
+            document.getElementById('inputFlight').value = city.flight;
+            document.getElementById('inputHotel').value = city.baseHotel[style];
+            document.getElementById('inputFood').value = city.baseFood[style];
+            document.getElementById('inputTransit').value = city.transit;
+            document.getElementById('inputActivities').value = city.activities;
+
+            saveAndRecalculate();
+        }
 
         function saveAndRecalculate() {
             saveStateToStorage();
@@ -602,8 +705,8 @@
         function saveStateToStorage() {
             const state = {
                 currentMode,
-                selectedCity: document.getElementById('singleCitySelect').value,
-                customCityName: document.getElementById('customCityName').value,
+                cityNameInput: document.getElementById('citySearchInput').value,
+                selectedCityKey: currentSelectedCityKey,
                 subLocation: document.getElementById('singleSubLocation').value,
                 duration: document.getElementById('singleDuration').value,
                 durationUnit: document.getElementById('singleDurationUnit').value,
@@ -629,8 +732,8 @@
             try {
                 const data = JSON.parse(raw);
                 if (data.currentMode) setMode(data.currentMode);
-                if (data.selectedCity) document.getElementById('singleCitySelect').value = data.selectedCity;
-                if (data.customCityName) document.getElementById('customCityName').value = data.customCityName;
+                if (data.cityNameInput) document.getElementById('citySearchInput').value = data.cityNameInput;
+                if (data.selectedCityKey) currentSelectedCityKey = data.selectedCityKey;
                 if (data.subLocation) document.getElementById('singleSubLocation').value = data.subLocation;
                 if (data.duration) document.getElementById('singleDuration').value = data.duration;
                 if (data.durationUnit) document.getElementById('singleDurationUnit').value = data.durationUnit;
@@ -653,7 +756,7 @@
                 btnM.className = "px-3 py-1.5 rounded-lg transition-all text-slate-500 hover:text-slate-800";
                 panelS.classList.remove('hidden');
                 panelM.classList.add('hidden');
-                handleSingleCityChange();
+                applySelectedCityDefaults();
             } else {
                 btnM.className = "px-3 py-1.5 rounded-lg transition-all shadow-sm bg-white text-slate-800";
                 btnS.className = "px-3 py-1.5 rounded-lg transition-all text-slate-500 hover:text-slate-800";
@@ -663,30 +766,8 @@
             }
         }
 
-        function handleSingleCityChange() {
-            const cityKey = document.getElementById('singleCitySelect').value;
-            const customContainer = document.getElementById('customCityContainer');
-
-            if (cityKey === 'custom') {
-                customContainer.classList.remove('hidden');
-            } else {
-                customContainer.classList.add('hidden');
-            }
-
-            const style = document.getElementById('singleStyle').value;
-            const city = cityDatabase[cityKey] || cityDatabase['paris'];
-
-            document.getElementById('inputFlight').value = city.flight;
-            document.getElementById('inputHotel').value = city.baseHotel[style];
-            document.getElementById('inputFood').value = city.baseFood[style];
-            document.getElementById('inputTransit').value = city.transit;
-            document.getElementById('inputActivities').value = city.activities;
-
-            saveAndRecalculate();
-        }
-
         function resetDefaults() {
-            handleSingleCityChange();
+            applySelectedCityDefaults();
         }
 
         function getDurationInDays() {
@@ -790,15 +871,17 @@
         }
 
         function renderHotelsAndDining(curr, rate, sym) {
-            const cityKey = document.getElementById('singleCitySelect').value;
-            const city = cityDatabase[cityKey] || cityDatabase['paris'];
+            const city = cityDatabase[currentSelectedCityKey] || cityDatabase['rome'];
 
             const hotelGrid = document.getElementById('hotelOptionsGrid');
             if (city.hotels && city.hotels.length > 0) {
                 hotelGrid.innerHTML = city.hotels.map(h => `
                     <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col justify-between space-y-3">
                         <div>
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full">${h.type}</span>
+                            <div class="flex justify-between items-center">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full">${h.type}</span>
+                                <span class="text-xs font-bold text-amber-500">${h.rating}</span>
+                            </div>
                             <h4 class="font-bold text-slate-800 mt-2">${h.name}</h4>
                             <p class="text-xs text-slate-500 mt-1">${h.desc}</p>
                         </div>
@@ -817,7 +900,10 @@
                 diningGrid.innerHTML = city.dining.map(d => `
                     <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col justify-between space-y-3">
                         <div>
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">${d.type}</span>
+                            <div class="flex justify-between items-center">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">${d.type}</span>
+                                <span class="text-xs font-bold text-amber-500">${d.rating}</span>
+                            </div>
                             <h4 class="font-bold text-slate-800 mt-2">${d.name}</h4>
                             <p class="text-xs text-slate-500 mt-1">${d.desc}</p>
                         </div>
@@ -872,6 +958,7 @@
                             <option value="paris" ${stop.city==='paris'?'selected':''}>Paris</option>
                             <option value="rome" ${stop.city==='rome'?'selected':''}>Rome</option>
                             <option value="london" ${stop.city==='london'?'selected':''}>London</option>
+                            <option value="shanghai" ${stop.city==='shanghai'?'selected':''}>Shanghai</option>
                             <option value="tokyo" ${stop.city==='tokyo'?'selected':''}>Tokyo</option>
                             <option value="bangkok" ${stop.city==='bangkok'?'selected':''}>Bangkok</option>
                             <option value="sydney" ${stop.city==='sydney'?'selected':''}>Sydney</option>
@@ -916,11 +1003,14 @@
         function promptAddCustomHotel() {
             const name = prompt("Enter Hotel or Stay Name:");
             if (!name) return;
+            const stars = prompt("Enter Star Rating (1 to 5):") || "3";
             const rate = parseFloat(prompt("Enter Nightly Rate (in GBP £):") || "100");
-            const cityKey = document.getElementById('singleCitySelect').value;
-            cityDatabase[cityKey].hotels.unshift({
+            const city = cityDatabase[currentSelectedCityKey] || cityDatabase['rome'];
+            city.hotels.unshift({
                 name: name,
-                type: "Custom Choice",
+                stars: parseInt(stars),
+                rating: stars + "★ Custom Choice",
+                type: stars + "★ Hotel / Stay",
                 rate: rate,
                 desc: "User added custom hotel recommendation."
             });
@@ -931,9 +1021,10 @@
             const name = prompt("Enter Restaurant Name:");
             if (!name) return;
             const price = parseFloat(prompt("Enter Avg Meal Price per person (in GBP £):") || "25");
-            const cityKey = document.getElementById('singleCitySelect').value;
-            cityDatabase[cityKey].dining.unshift({
+            const city = cityDatabase[currentSelectedCityKey] || cityDatabase['rome'];
+            city.dining.unshift({
                 name: name,
+                rating: "4.5 ★",
                 type: "Custom Spot",
                 price: price,
                 desc: "User added custom restaurant."
