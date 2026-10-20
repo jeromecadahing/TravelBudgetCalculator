@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WanderBudget - Smart Travel Budget Calculator</title>
+    <title>WanderBudget - Multi-Stop Travel Budget & Itinerary Planner</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js -->
@@ -53,7 +53,7 @@
             background: rgba(148, 163, 184, 0.5);
         }
         .glass-panel {
-            background: rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.75);
             backdrop-filter: blur(16px);
             border: 1px solid rgba(226, 232, 240, 0.8);
         }
@@ -61,16 +61,6 @@
             background: rgba(15, 23, 42, 0.75);
             backdrop-filter: blur(16px);
             border: 1px solid rgba(51, 65, 85, 0.5);
-        }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.5);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(241, 245, 249, 1);
-        }
-        .dark .glass-card {
-            background: rgba(30, 41, 59, 0.5);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(51, 65, 85, 0.4);
         }
         @media print {
             .no-print {
@@ -90,20 +80,20 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="p-2.5 bg-gradient-to-tr from-sky-500 to-indigo-600 rounded-xl text-white shadow-lg shadow-sky-500/20">
-                    <i data-lucide="compass" class="w-6 h-6"></i>
+                    <i data-lucide="map" class="w-6 h-6"></i>
                 </div>
                 <div>
                     <h1 class="text-xl font-bold bg-gradient-to-r from-sky-500 via-indigo-500 to-purple-500 bg-clip-text text-transparent">WanderBudget</h1>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Smart Travel Cost Estimator & Planner</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Multi-City Trip Planner & Budget Estimator</p>
                 </div>
             </div>
 
-            <!-- Controls (Currency & Theme) -->
-            <div class="flex items-center gap-3 sm:gap-4">
+            <!-- Controls (Currency, Save, Theme) -->
+            <div class="flex items-center gap-2 sm:gap-3">
                 <!-- Currency Selector -->
                 <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 p-1.5 rounded-xl border border-slate-200 dark:border-slate-700">
                     <i data-lucide="coins" class="w-4 h-4 text-sky-500 ml-1"></i>
-                    <select id="currency-select" class="bg-transparent text-sm font-semibold text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer pr-1">
+                    <select id="currency-select" class="bg-transparent text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer pr-1">
                         <option value="USD">USD ($)</option>
                         <option value="EUR">EUR (€)</option>
                         <option value="GBP">GBP (£)</option>
@@ -120,295 +110,179 @@
                     <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
                 </button>
 
+                <!-- Save to LocalStorage indicator -->
+                <button id="save-status-btn" class="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
+                    <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+                    <span>Saved</span>
+                </button>
+
                 <!-- Print Summary -->
-                <button id="export-pdf-btn" class="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-sm font-medium">
-                    <i data-lucide="printer" class="w-4 h-4"></i>
-                    <span>Print Summary</span>
+                <button id="export-pdf-btn" class="hidden md:flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-xs font-medium">
+                    <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                    <span>Print</span>
                 </button>
             </div>
         </div>
     </header>
 
     <!-- Main Container -->
-    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
-        <!-- Input Parameters & Overview Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-            <!-- LEFT COLUMN: Trip Parameters (5 cols) -->
-            <div class="lg:col-span-5 space-y-6">
-                <div class="glass-panel p-5 sm:p-6 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800/80">
-                    <div class="flex items-center justify-between mb-5">
-                        <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                            <i data-lucide="sliders" class="w-5 h-5 text-sky-500"></i>
-                            Trip Details
-                        </h2>
-                        <button id="reset-btn" class="text-xs text-slate-500 hover:text-sky-500 transition flex items-center gap-1">
-                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
-                            Reset
-                        </button>
-                    </div>
-
-                    <div class="space-y-4">
-                        <!-- Destination Input -->
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">
-                                Destination
-                            </label>
-                            <div class="relative">
-                                <i data-lucide="map-pin" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
-                                <select id="destination-select" class="w-full pl-9 pr-8 py-2.5 bg-slate-100 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 text-sm font-medium focus:ring-2 focus:ring-sky-500 focus:outline-none transition appearance-none cursor-pointer">
-                                    <!-- Populated dynamically -->
-                                </select>
-                                <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3 top-3 text-slate-400 pointer-events-none"></i>
-                            </div>
-                            <div class="mt-1.5 flex items-center justify-between text-xs text-slate-500">
-                                <span>Tier: <span id="tier-badge" class="font-semibold text-sky-500">Moderate</span></span>
-                                <span>Base Daily Index: <span id="base-cost-display" class="font-semibold">$120</span>/day</span>
-                            </div>
-                        </div>
-
-                        <!-- Duration & Traveler Count -->
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">
-                                    Duration
-                                </label>
-                                <div class="flex gap-2">
-                                    <div class="relative flex-1">
-                                        <input type="number" id="duration-input" min="1" max="365" value="7" class="w-full pl-3 pr-2 py-2.5 bg-slate-100 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 text-sm font-medium focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                                    </div>
-                                    <select id="duration-unit" class="bg-slate-100 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-xl px-2 text-xs font-semibold focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                                        <option value="days">Days</option>
-                                        <option value="weeks">Weeks</option>
-                                        <option value="months">Months</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">
-                                    Travelers
-                                </label>
-                                <div class="relative">
-                                    <i data-lucide="users" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
-                                    <select id="travelers-select" class="w-full pl-9 pr-3 py-2.5 bg-slate-100 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 text-sm font-medium focus:ring-2 focus:ring-sky-500 focus:outline-none transition appearance-none cursor-pointer">
-                                        <option value="1">Solo (1)</option>
-                                        <option value="2" selected>Couple (2)</option>
-                                        <option value="3">Small Group (3)</option>
-                                        <option value="4">Family / Group (4)</option>
-                                        <option value="6">Group (6)</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Travel Style Selection -->
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
-                                Travel Style
-                            </label>
-                            <div class="grid grid-cols-3 gap-2" id="style-toggle-group">
-                                <button type="button" data-style="budget" class="style-btn px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center gap-1 transition text-slate-600 dark:text-slate-400 hover:border-sky-500">
-                                    <i data-lucide="backpack" class="w-4 h-4"></i>
-                                    <span class="text-xs font-semibold">Budget</span>
-                                </button>
-                                <button type="button" data-style="moderate" class="style-btn px-3 py-2.5 rounded-xl border-2 border-sky-500 bg-sky-500/10 text-sky-600 dark:text-sky-400 flex flex-col items-center justify-center gap-1 transition font-semibold">
-                                    <i data-lucide="compass" class="w-4 h-4"></i>
-                                    <span class="text-xs">Moderate</span>
-                                </button>
-                                <button type="button" data-style="luxury" class="style-btn px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center gap-1 transition text-slate-600 dark:text-slate-400 hover:border-sky-500">
-                                    <i data-lucide="crown" class="w-4 h-4"></i>
-                                    <span class="text-xs font-semibold">Luxury</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Fixed One-time Costs (Flights & Visas) -->
-                        <div class="pt-2 border-t border-slate-200 dark:border-slate-800">
-                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">
-                                Fixed One-time Costs (Per Person)
-                            </label>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <span class="text-xs text-slate-500 flex items-center gap-1 mb-1">
-                                        <i data-lucide="plane" class="w-3.5 h-3.5 text-sky-500"></i> Flights/Transit
-                                    </span>
-                                    <input type="number" id="flight-cost-input" value="450" min="0" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 text-sm font-medium focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                                </div>
-                                <div>
-                                    <span class="text-xs text-slate-500 flex items-center gap-1 mb-1">
-                                        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-500"></i> Insurance & Visa
-                                    </span>
-                                    <input type="number" id="fixed-cost-input" value="75" min="0" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 text-sm font-medium focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
+        <!-- Top Global Trip Settings -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800/80 pb-4">
+                <div>
+                    <input type="text" id="trip-title-input" value="European Multi-City Adventure" class="text-xl sm:text-2xl font-extrabold bg-transparent text-slate-900 dark:text-white focus:outline-none border-b border-dashed border-slate-400 dark:border-slate-600 focus:border-sky-500 w-full sm:w-auto">
+                    <p class="text-xs text-slate-500 mt-1">Click title to rename • Multi-destination itinerary & expenses</p>
                 </div>
-
-                <!-- Fast Key Metrics -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-3">
-                    <div class="glass-panel p-4 rounded-xl border-l-4 border-l-sky-500 flex justify-between items-center">
-                        <div>
-                            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Trip Budget</div>
-                            <div id="total-budget-card" class="text-2xl font-extrabold text-slate-900 dark:text-white">$0</div>
-                        </div>
-                        <i data-lucide="wallet" class="w-8 h-8 text-sky-500/30"></i>
-                    </div>
-                    <div class="glass-panel p-4 rounded-xl border-l-4 border-l-indigo-500 flex justify-between items-center">
-                        <div>
-                            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Per Person</div>
-                            <div id="per-person-card" class="text-2xl font-extrabold text-slate-900 dark:text-white">$0</div>
-                        </div>
-                        <i data-lucide="user" class="w-8 h-8 text-indigo-500/30"></i>
-                    </div>
-                    <div class="glass-panel p-4 rounded-xl border-l-4 border-l-purple-500 flex justify-between items-center">
-                        <div>
-                            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Daily / Person</div>
-                            <div id="daily-person-card" class="text-2xl font-extrabold text-slate-900 dark:text-white">$0</div>
-                        </div>
-                        <i data-lucide="sun" class="w-8 h-8 text-purple-500/30"></i>
-                    </div>
+                <div class="flex items-center gap-2 self-end sm:self-auto">
+                    <button id="add-stop-btn" class="px-4 py-2 bg-gradient-to-r from-sky-500 to-indigo-600 text-white rounded-xl text-xs font-bold shadow-md hover:opacity-95 transition flex items-center gap-1.5">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Add Stop / City
+                    </button>
+                    <button id="reset-trip-btn" class="px-3 py-2 text-slate-500 hover:text-rose-500 text-xs font-medium transition flex items-center gap-1">
+                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset
+                    </button>
                 </div>
             </div>
 
-            <!-- RIGHT COLUMN: Tabbed Explorer & Calculations (7 cols) -->
-            <div class="lg:col-span-7 space-y-6">
+            <!-- Global Parameters (Travelers, Buffer, Insurance) -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-500 uppercase tracking-wider mb-1">Travelers</label>
+                    <select id="global-travelers" class="w-full p-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold">
+                        <option value="1">Solo (1)</option>
+                        <option value="2" selected>Couple (2)</option>
+                        <option value="3">Small Group (3)</option>
+                        <option value="4">Group (4)</option>
+                        <option value="6">Group (6)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-500 uppercase tracking-wider mb-1">Emergency Buffer</label>
+                    <select id="global-buffer" class="w-full p-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold">
+                        <option value="0.05">5%</option>
+                        <option value="0.10" selected>10%</option>
+                        <option value="0.15">15%</option>
+                        <option value="0.20">20%</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-500 uppercase tracking-wider mb-1">Flight / Main Transit</label>
+                    <div class="relative">
+                        <span class="currency-symbol absolute left-2.5 top-2 text-slate-400">$</span>
+                        <input type="number" id="global-flight" value="650" class="w-full pl-6 pr-2 py-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold">
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-500 uppercase tracking-wider mb-1">Insurance & Visas</label>
+                    <div class="relative">
+                        <span class="currency-symbol absolute left-2.5 top-2 text-slate-400">$</span>
+                        <input type="number" id="global-visa" value="80" class="w-full pl-6 pr-2 py-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold">
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                <!-- Navigation Tabs -->
-                <div class="glass-panel p-1.5 rounded-2xl flex flex-wrap gap-1 border border-slate-200 dark:border-slate-800 no-print">
-                    <button data-tab="tab-breakdown" class="tab-btn flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition bg-sky-500 text-white shadow-md">
-                        <i data-lucide="pie-chart" class="w-4 h-4"></i>
-                        <span>Breakdown & Inclusions</span>
+        <!-- KPI Executive Summary Banner -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="glass-panel p-4 rounded-2xl border-l-4 border-l-sky-500 flex justify-between items-center">
+                <div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase">Grand Total Trip</div>
+                    <div id="kpi-total-budget" class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">$0</div>
+                </div>
+                <i data-lucide="wallet" class="w-7 h-7 text-sky-500/30"></i>
+            </div>
+            <div class="glass-panel p-4 rounded-2xl border-l-4 border-l-indigo-500 flex justify-between items-center">
+                <div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase">Per Person Total</div>
+                    <div id="kpi-per-person" class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">$0</div>
+                </div>
+                <i data-lucide="user" class="w-7 h-7 text-indigo-500/30"></i>
+            </div>
+            <div class="glass-panel p-4 rounded-2xl border-l-4 border-l-purple-500 flex justify-between items-center">
+                <div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase">Total Trip Days</div>
+                    <div id="kpi-total-days" class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">0 Days</div>
+                </div>
+                <i data-lucide="calendar" class="w-7 h-7 text-purple-500/30"></i>
+            </div>
+            <div class="glass-panel p-4 rounded-2xl border-l-4 border-l-emerald-500 flex justify-between items-center">
+                <div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase">Stops Planned</div>
+                    <div id="kpi-total-stops" class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">0 Stops</div>
+                </div>
+                <i data-lucide="map-pin" class="w-7 h-7 text-emerald-500/30"></i>
+            </div>
+        </div>
+
+        <!-- MAIN LAYOUT: Left (Stops Builder) vs Right (Tabbed Analytics & Stays/Dining) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- LEFT COLUMN: Multi-Stop Builder (7 cols) -->
+            <div class="lg:col-span-7 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <i data-lucide="route" class="w-5 h-5 text-sky-500"></i>
+                        Itinerary Stops & Sub-Locations
+                    </h2>
+                    <span class="text-xs text-slate-500">Drag/reorder or customize inputs freely</span>
+                </div>
+
+                <!-- Stops Cards Container -->
+                <div id="stops-container" class="space-y-4">
+                    <!-- Dynamic Stops dynamically populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: Tabbed Workspace & Explorer (5 cols) -->
+            <div class="lg:col-span-5 space-y-4">
+                
+                <!-- Tab Navigation Bar -->
+                <div class="glass-panel p-1.5 rounded-2xl flex gap-1 border border-slate-200 dark:border-slate-800 no-print overflow-x-auto">
+                    <button data-tab="tab-charts" class="tab-btn flex-1 py-2 px-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1 transition bg-sky-500 text-white shadow-md">
+                        <i data-lucide="pie-chart" class="w-3.5 h-3.5"></i> Breakdown
                     </button>
-                    <button data-tab="tab-hotels" class="tab-btn flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
-                        <i data-lucide="hotel" class="w-4 h-4"></i>
-                        <span>Hotels & Stays</span>
+                    <button data-tab="tab-custom-hotels" class="tab-btn flex-1 py-2 px-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                        <i data-lucide="building" class="w-3.5 h-3.5"></i> Hotels & Stays
                     </button>
-                    <button data-tab="tab-dining" class="tab-btn flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
-                        <i data-lucide="utensils" class="w-4 h-4"></i>
-                        <span>Restaurants & Food</span>
+                    <button data-tab="tab-custom-dining" class="tab-btn flex-1 py-2 px-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                        <i data-lucide="utensils" class="w-3.5 h-3.5"></i> Dining
                     </button>
-                    <button data-tab="tab-savings" class="tab-btn flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
-                        <i data-lucide="piggy-bank" class="w-4 h-4"></i>
-                        <span>Savings Goal</span>
+                    <button data-tab="tab-savings-planner" class="tab-btn flex-1 py-2 px-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                        <i data-lucide="piggy-bank" class="w-3.5 h-3.5"></i> Savings
                     </button>
                 </div>
 
-                <!-- TAB 1: BREAKDOWN & INCLUSIONS -->
-                <div id="tab-breakdown" class="tab-content space-y-6">
-                    <div class="glass-panel p-5 sm:p-6 rounded-2xl space-y-4">
+                <!-- TAB 1: CHARTS & SUMMARY TABLE -->
+                <div id="tab-charts" class="tab-content space-y-4">
+                    <!-- Chart View -->
+                    <div class="glass-panel p-5 rounded-2xl space-y-3">
                         <div class="flex items-center justify-between">
-                            <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                <i data-lucide="pie-chart" class="w-5 h-5 text-indigo-500"></i>
-                                Expense Allocations
-                            </h3>
-                            <span class="text-xs bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 px-2.5 py-1 rounded-full font-medium">Interactive Adjuster</span>
+                            <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Expense Allocation By Stop</h3>
+                            <div class="flex gap-1">
+                                <button id="chart-type-category" class="px-2 py-1 rounded bg-sky-500/10 text-sky-500 text-[10px] font-bold">Category</button>
+                                <button id="chart-type-stop" class="px-2 py-1 rounded bg-slate-200 dark:bg-slate-800 text-slate-500 text-[10px] font-bold">By Stop</button>
+                            </div>
                         </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-                            <!-- Chart View -->
-                            <div class="md:col-span-5 flex justify-center items-center h-52 relative">
-                                <canvas id="budgetChart"></canvas>
-                            </div>
-
-                            <!-- Daily Expense Inputs -->
-                            <div class="md:col-span-7 space-y-2.5">
-                                <!-- Accommodation -->
-                                <div class="flex items-center justify-between text-xs sm:text-sm bg-slate-100/70 dark:bg-slate-800/50 p-2.5 rounded-xl border border-slate-200/50 dark:border-slate-700/50">
-                                    <span class="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-medium">
-                                        <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span> Accommodation
-                                    </span>
-                                    <div class="flex items-center gap-1">
-                                        <span class="currency-symbol text-slate-400">$</span>
-                                        <input type="number" id="input-acc" value="70" class="daily-cost-input w-16 px-2 py-1 text-right bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg font-semibold focus:outline-none">
-                                        <span class="text-xs text-slate-400">/day</span>
-                                    </div>
-                                </div>
-
-                                <!-- Food -->
-                                <div class="flex items-center justify-between text-xs sm:text-sm bg-slate-100/70 dark:bg-slate-800/50 p-2.5 rounded-xl border border-slate-200/50 dark:border-slate-700/50">
-                                    <span class="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-medium">
-                                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Food & Dining
-                                    </span>
-                                    <div class="flex items-center gap-1">
-                                        <span class="currency-symbol text-slate-400">$</span>
-                                        <input type="number" id="input-food" value="35" class="daily-cost-input w-16 px-2 py-1 text-right bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg font-semibold focus:outline-none">
-                                        <span class="text-xs text-slate-400">/day</span>
-                                    </div>
-                                </div>
-
-                                <!-- Transport -->
-                                <div class="flex items-center justify-between text-xs sm:text-sm bg-slate-100/70 dark:bg-slate-800/50 p-2.5 rounded-xl border border-slate-200/50 dark:border-slate-700/50">
-                                    <span class="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-medium">
-                                        <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Local Transport
-                                    </span>
-                                    <div class="flex items-center gap-1">
-                                        <span class="currency-symbol text-slate-400">$</span>
-                                        <input type="number" id="input-trans" value="15" class="daily-cost-input w-16 px-2 py-1 text-right bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg font-semibold focus:outline-none">
-                                        <span class="text-xs text-slate-400">/day</span>
-                                    </div>
-                                </div>
-
-                                <!-- Activities -->
-                                <div class="flex items-center justify-between text-xs sm:text-sm bg-slate-100/70 dark:bg-slate-800/50 p-2.5 rounded-xl border border-slate-200/50 dark:border-slate-700/50">
-                                    <span class="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-medium">
-                                        <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span> Activities & Tours
-                                    </span>
-                                    <div class="flex items-center gap-1">
-                                        <span class="currency-symbol text-slate-400">$</span>
-                                        <input type="number" id="input-act" value="25" class="daily-cost-input w-16 px-2 py-1 text-right bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg font-semibold focus:outline-none">
-                                        <span class="text-xs text-slate-400">/day</span>
-                                    </div>
-                                </div>
-
-                                <!-- Buffer -->
-                                <div class="flex items-center justify-between text-xs sm:text-sm bg-slate-100/70 dark:bg-slate-800/50 p-2.5 rounded-xl border border-slate-200/50 dark:border-slate-700/50">
-                                    <span class="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-medium">
-                                        <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Emergency Buffer
-                                    </span>
-                                    <div class="flex items-center gap-1">
-                                        <select id="buffer-select" class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-xs py-1 px-2 font-semibold">
-                                            <option value="0.05">5%</option>
-                                            <option value="0.10" selected>10%</option>
-                                            <option value="0.15">15%</option>
-                                            <option value="0.20">20%</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="h-52 relative flex justify-center items-center">
+                            <canvas id="multiStopChart"></canvas>
                         </div>
                     </div>
 
-                    <!-- Category Inclusions Breakdown -->
-                    <div class="glass-panel p-5 rounded-2xl space-y-4">
-                        <h4 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                            <i data-lucide="layers" class="w-4 h-4 text-sky-500"></i>
-                            What Each Category Covers
-                        </h4>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs" id="inclusions-grid">
-                            <!-- Populated dynamically based on destination and tier -->
-                        </div>
-                    </div>
-
-                    <!-- Comprehensive Cost Breakdown Table -->
-                    <div class="glass-panel p-5 rounded-2xl space-y-3 overflow-hidden">
-                        <h4 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                            <i data-lucide="table" class="w-4 h-4 text-indigo-500"></i>
-                            Detailed Cost Summary Table
-                        </h4>
+                    <!-- Complete Category Summary -->
+                    <div class="glass-panel p-4 rounded-2xl space-y-2 overflow-hidden">
+                        <h4 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Multi-Stop Summary Table</h4>
                         <div class="overflow-x-auto">
-                            <table class="w-full text-xs text-left border-collapse">
+                            <table class="w-full text-xs text-left">
                                 <thead>
-                                    <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-500 uppercase tracking-wider">
-                                        <th class="py-2 px-3">Category</th>
-                                        <th class="py-2 px-3 text-right">Daily / Person</th>
-                                        <th class="py-2 px-3 text-right">Total / Person</th>
-                                        <th class="py-2 px-3 text-right">Grand Group Total</th>
+                                    <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-400">
+                                        <th class="py-1.5 px-2">Stop</th>
+                                        <th class="py-1.5 px-2 text-center">Days</th>
+                                        <th class="py-1.5 px-2 text-right">Per Person</th>
+                                        <th class="py-1.5 px-2 text-right">Group Total</th>
                                     </tr>
                                 </thead>
-                                <tbody id="cost-summary-tbody" class="divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-700 dark:text-slate-300">
+                                <tbody id="multi-stop-summary-tbody" class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
                                     <!-- Populated dynamically -->
                                 </tbody>
                             </table>
@@ -416,93 +290,80 @@
                     </div>
                 </div>
 
-                <!-- TAB 2: HOTEL & ACCOMMODATION RECOMMENDATIONS -->
-                <div id="tab-hotels" class="tab-content space-y-4 hidden">
-                    <div class="glass-panel p-5 rounded-2xl space-y-2">
+                <!-- TAB 2: CUSTOM HOTELS MANAGER -->
+                <div id="tab-custom-hotels" class="tab-content space-y-4 hidden">
+                    <div class="glass-panel p-4 rounded-2xl space-y-3">
                         <div class="flex items-center justify-between">
-                            <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                <i data-lucide="building" class="w-5 h-5 text-sky-500"></i>
-                                Recommended Stay Options in <span id="hotel-dest-name">Destination</span>
+                            <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                                <i data-lucide="hotel" class="w-4 h-4 text-sky-500"></i> Saved Stays & Hotels
                             </h3>
-                            <a id="search-all-hotels-link" href="#" target="_blank" class="text-xs text-sky-500 hover:underline flex items-center gap-1">
-                                Search All Hotels <i data-lucide="external-link" class="w-3 h-3"></i>
-                            </a>
+                            <button id="open-add-hotel-modal" class="px-2.5 py-1 bg-sky-500 hover:bg-sky-600 text-white text-xs rounded-lg font-semibold flex items-center gap-1">
+                                <i data-lucide="plus" class="w-3 h-3"></i> Add Hotel
+                            </button>
                         </div>
-                        <p class="text-xs text-slate-500">Prices are estimated per night for 1 room based on standard double occupancy.</p>
-                    </div>
 
-                    <div id="hotels-container" class="space-y-4">
-                        <!-- Populated dynamically -->
+                        <!-- Hotel List -->
+                        <div id="custom-hotels-list" class="space-y-2.5">
+                            <!-- Populated dynamically -->
+                        </div>
                     </div>
                 </div>
 
-                <!-- TAB 3: RESTAURANT & DINING RECOMMENDATIONS -->
-                <div id="tab-dining" class="tab-content space-y-4 hidden">
-                    <div class="glass-panel p-5 rounded-2xl space-y-2">
+                <!-- TAB 3: CUSTOM DINING MANAGER -->
+                <div id="tab-custom-dining" class="tab-content space-y-4 hidden">
+                    <div class="glass-panel p-4 rounded-2xl space-y-3">
                         <div class="flex items-center justify-between">
-                            <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                <i data-lucide="utensils" class="w-5 h-5 text-emerald-500"></i>
-                                Dining Recommendations in <span id="dining-dest-name">Destination</span>
+                            <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                                <i data-lucide="utensils" class="w-4 h-4 text-emerald-500"></i> Saved Dining & Restaurants
                             </h3>
-                            <a id="search-all-dining-link" href="#" target="_blank" class="text-xs text-emerald-500 hover:underline flex items-center gap-1">
-                                Search Restaurants <i data-lucide="external-link" class="w-3 h-3"></i>
-                            </a>
+                            <button id="open-add-dining-modal" class="px-2.5 py-1 bg-emerald-500 hover:bg-emerald-600 text-white text-xs rounded-lg font-semibold flex items-center gap-1">
+                                <i data-lucide="plus" class="w-3 h-3"></i> Add Restaurant
+                            </button>
                         </div>
-                        <p class="text-xs text-slate-500">Estimated cost per person per meal or entry tier.</p>
-                    </div>
 
-                    <div id="dining-container" class="space-y-4">
-                        <!-- Populated dynamically -->
+                        <!-- Dining List -->
+                        <div id="custom-dining-list" class="space-y-2.5">
+                            <!-- Populated dynamically -->
+                        </div>
                     </div>
                 </div>
 
-                <!-- TAB 4: SAVINGS GOAL PLANNER -->
-                <div id="tab-savings" class="tab-content space-y-4 hidden">
-                    <div class="glass-panel p-5 sm:p-6 rounded-2xl space-y-5">
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                            <i data-lucide="piggy-bank" class="w-5 h-5 text-emerald-500"></i>
-                            Trip Savings Goal Tracker
+                <!-- TAB 4: SAVINGS TRACKER -->
+                <div id="tab-savings-planner" class="tab-content space-y-4 hidden">
+                    <div class="glass-panel p-5 rounded-2xl space-y-4">
+                        <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                            <i data-lucide="piggy-bank" class="w-4 h-4 text-emerald-500"></i> Savings Plan Calculator
                         </h3>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-2 gap-3 text-xs">
                             <div>
-                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">
-                                    Months until departure
-                                </label>
-                                <input type="number" id="months-to-save" min="1" max="48" value="6" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium">
+                                <label class="block text-slate-500 mb-1">Months to Departure</label>
+                                <input type="number" id="savings-months" value="6" min="1" class="w-full p-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">
-                                    Current Savings Allocated
-                                </label>
-                                <input type="number" id="current-savings" min="0" value="500" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium">
-                            </div>
-                        </div>
-
-                        <!-- Savings Targets Banner -->
-                        <div class="p-4 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 rounded-2xl space-y-3">
-                            <div class="flex items-center justify-between text-sm">
-                                <span class="font-semibold text-slate-700 dark:text-slate-200">Required Remaining Savings:</span>
-                                <span id="remaining-savings-total" class="font-extrabold text-emerald-600 dark:text-emerald-400">$0</span>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-3 pt-2 border-t border-emerald-500/20">
-                                <div>
-                                    <div class="text-xs text-slate-500">Monthly Target</div>
-                                    <div id="monthly-savings-target" class="text-lg font-bold text-slate-900 dark:text-white">$0 / mo</div>
-                                </div>
-                                <div>
-                                    <div class="text-xs text-slate-500">Daily Target</div>
-                                    <div id="daily-savings-target" class="text-lg font-bold text-slate-900 dark:text-white">$0 / day</div>
+                                <label class="block text-slate-500 mb-1">Current Savings</label>
+                                <div class="relative">
+                                    <span class="currency-symbol absolute left-2.5 top-2 text-slate-400">$</span>
+                                    <input type="number" id="savings-current" value="500" min="0" class="w-full pl-6 pr-2 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold">
                                 </div>
                             </div>
                         </div>
 
-                        <div class="p-4 bg-slate-100 dark:bg-slate-800/60 rounded-xl text-xs space-y-1 text-slate-600 dark:text-slate-400">
-                            <span class="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1">
-                                <i data-lucide="lightbulb" class="w-3.5 h-3.5 text-amber-500"></i> Smart Savings Tip:
-                            </span>
-                            <p>Automate transfers into a high-yield travel sub-account on payday to make reaching your target painless!</p>
+                        <div class="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl space-y-2 text-xs">
+                            <div class="flex justify-between font-semibold">
+                                <span class="text-slate-600 dark:text-slate-300">Remaining Need:</span>
+                                <span id="savings-needed" class="text-emerald-500 font-extrabold">$0</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-emerald-500/20">
+                                <div>
+                                    <div class="text-[10px] text-slate-400">Monthly Target</div>
+                                    <div id="savings-monthly" class="font-extrabold text-slate-900 dark:text-white">$0</div>
+                                </div>
+                                <div>
+                                    <div class="text-[10px] text-slate-400">Daily Target</div>
+                                    <div id="savings-daily" class="font-extrabold text-slate-900 dark:text-white">$0</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -510,307 +371,148 @@
             </div>
         </div>
 
-        <!-- Checklist & Destination Overview Bar -->
+        <!-- Checklist & Backup Actions -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-            <!-- Pre-Trip Checklist (7 cols) -->
-            <div class="lg:col-span-7 glass-panel p-5 sm:p-6 rounded-2xl">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        <i data-lucide="check-square" class="w-5 h-5 text-emerald-500"></i>
-                        Pre-Trip Expenses & Essentials Checklist
+            <!-- Travel Checklist (7 cols) -->
+            <div class="lg:col-span-7 glass-panel p-5 rounded-2xl space-y-3">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                        <i data-lucide="check-square" class="w-4 h-4 text-sky-500"></i> Pre-Trip Essentials Checklist
                     </h3>
-                    <span id="checklist-progress" class="text-xs text-slate-500 font-medium">0 of 5 checked</span>
+                    <span id="checklist-counter" class="text-xs text-slate-400">0/5 Done</span>
                 </div>
-
-                <div class="space-y-2.5" id="checklist-container">
-                    <!-- Checklist items populated dynamically JS -->
+                <div id="checklist-items" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                    <!-- Populated dynamically -->
                 </div>
             </div>
 
-            <!-- Destination Info Card (5 cols) -->
-            <div class="lg:col-span-5 glass-panel p-5 sm:p-6 rounded-2xl flex flex-col justify-between">
+            <!-- Import / Export Trip Configuration (5 cols) -->
+            <div class="lg:col-span-5 glass-panel p-5 rounded-2xl flex flex-col justify-between space-y-3">
                 <div>
-                    <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-3">
-                        <i data-lucide="sparkles" class="w-5 h-5 text-amber-500"></i>
-                        Destination Overview
+                    <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5 mb-1">
+                        <i data-lucide="file-json" class="w-4 h-4 text-purple-500"></i> Backup & Share Trip Config
                     </h3>
-                    <div id="destination-insight-card" class="space-y-3 text-sm text-slate-600 dark:text-slate-300">
-                        <p class="leading-relaxed" id="dest-description">
-                            Loading destination details...
-                        </p>
-                        <div class="p-3 bg-slate-100 dark:bg-slate-800/80 rounded-xl space-y-1.5 text-xs">
-                            <div class="flex justify-between">
-                                <span class="text-slate-500">Best Season:</span>
-                                <span id="peak-season" class="font-semibold text-slate-800 dark:text-slate-200">-</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-slate-500">Local Currency:</span>
-                                <span id="local-curr" class="font-semibold text-slate-800 dark:text-slate-200">-</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-slate-500">Money Saving Tip:</span>
-                                <span id="budget-tip" class="font-semibold text-sky-500 text-right max-w-[200px] truncate">-</span>
-                            </div>
-                        </div>
-                    </div>
+                    <p class="text-xs text-slate-500">Export your multi-city trip as a JSON file to share with travel partners or reload later on GitHub Pages.</p>
                 </div>
 
-                <div class="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-2 no-print">
-                    <button id="download-json-btn" class="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-1.5">
-                        <i data-lucide="download" class="w-3.5 h-3.5"></i> Export Summary JSON
+                <div class="flex items-center gap-2 no-print">
+                    <button id="export-json-btn" class="flex-1 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-center gap-1 transition">
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i> Export JSON
                     </button>
+                    <label class="flex-1 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-center gap-1 cursor-pointer transition">
+                        <i data-lucide="upload" class="w-3.5 h-3.5"></i> Import JSON
+                        <input type="file" id="import-json-input" accept=".json" class="hidden">
+                    </label>
                 </div>
             </div>
-
         </div>
 
     </main>
 
+    <!-- ADD HOTEL MODAL -->
+    <div id="add-hotel-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel p-6 rounded-2xl max-w-md w-full space-y-4 border border-slate-700">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-slate-900 dark:text-white text-sm">Add Custom Accommodation</h3>
+                <button class="close-modal text-slate-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <form id="add-hotel-form" class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-slate-400 mb-1">Assign to Stop</label>
+                    <select id="modal-hotel-stop" class="w-full p-2 bg-slate-100 dark:bg-slate-800 border border-slate-700 rounded-xl font-semibold"></select>
+                </div>
+                <div>
+                    <label class="block text-slate-400 mb-1">Hotel / Stay Name</label>
+                    <input type="text" id="modal-hotel-name" required placeholder="e.g. Le Marais Boutique Apartment" class="w-full p-2 bg-slate-100 dark:bg-slate-800 border border-slate-700 rounded-xl font-semibold">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-slate-400 mb-1">Nightly Rate</label>
+                        <input type="number" id="modal-hotel-price" required value="120" min="0" class="w-full p-2 bg-slate-100 dark:bg-slate-800 border border-slate-700 rounded-xl font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1">Category</label>
+                        <select id="modal-hotel-tier" class="w-full p-2 bg-slate-100 dark:bg-slate-800 border border-slate-700 rounded-xl font-semibold">
+                            <option value="Budget">Budget / Hostel</option>
+                            <option value="Mid-Range" selected>Mid-Range Hotel</option>
+                            <option value="Luxury">Luxury Resort</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-slate-400 mb-1">Notes or Booking URL</label>
+                    <input type="text" id="modal-hotel-notes" placeholder="e.g. Near metro station, includes breakfast" class="w-full p-2 bg-slate-100 dark:bg-slate-800 border border-slate-700 rounded-xl">
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" class="close-modal px-3 py-2 text-slate-400 hover:text-white font-medium">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-sky-500 text-white rounded-xl font-bold">Save Stay</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ADD DINING MODAL -->
+    <div id="add-dining-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel p-6 rounded-2xl max-w-md w-full space-y-4 border border-slate-700">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-slate-900 dark:text-white text-sm">Add Custom Dining / Restaurant</h3>
+                <button class="close-modal text-slate-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <form id="add-dining-form" class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-slate-400 mb-1">Assign to Stop</label>
+                    <select id="modal-dining-stop" class="w-full p-2 bg-slate-100 dark:bg-slate-800 border border-slate-700 rounded-xl font-semibold"></select>
+                </div>
+                <div>
+                    <label class="block text-slate-400 mb-1">Restaurant / Place Name</label>
+                    <input type="text" id="modal-dining-name" required placeholder="e.g. Cafe de Flore" class="w-full p-2 bg-slate-100 dark:bg-slate-800 border border-slate-700 rounded-xl font-semibold">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-slate-400 mb-1">Cost per Meal/Person</label>
+                        <input type="number" id="modal-dining-price" required value="25" min="0" class="w-full p-2 bg-slate-100 dark:bg-slate-800 border border-slate-700 rounded-xl font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1">Type</label>
+                        <select id="modal-dining-tier" class="w-full p-2 bg-slate-100 dark:bg-slate-800 border border-slate-700 rounded-xl font-semibold">
+                            <option value="Cheap Eats">Cheap Eats / Street</option>
+                            <option value="Casual Bistro" selected>Casual Bistro</option>
+                            <option value="Fine Dining">Fine Dining</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-slate-400 mb-1">Notes or Signature Dish</label>
+                    <input type="text" id="modal-dining-notes" placeholder="e.g. Try the croque monsieur" class="w-full p-2 bg-slate-100 dark:bg-slate-800 border border-slate-700 rounded-xl">
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" class="close-modal px-3 py-2 text-slate-400 hover:text-white font-medium">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-500 text-white rounded-xl font-bold">Save Restaurant</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="border-t border-slate-200 dark:border-slate-800 py-6 text-center text-xs text-slate-500 no-print">
-        <p>© <span id="year"></span> WanderBudget • Comprehensive Travel Cost Estimator</p>
+        <p>© <span id="year"></span> WanderBudget • Multi-Destination Travel Calculator</p>
     </footer>
 
-    <!-- Application Script -->
+    <!-- Script Implementation -->
     <script>
-        // Expanded Destination database with hotel & restaurant recommendations
-        const DESTINATIONS = [
-            {
-                id: 'tokyo',
-                name: 'Tokyo, Japan',
-                tier: 'High',
-                tierClass: 'text-amber-500',
-                baseDaily: 140,
-                accRatio: 0.45, foodRatio: 0.25, transRatio: 0.15, actRatio: 0.15,
-                flightAvg: 850,
-                description: 'A futuristic city with ancient traditions. Exceptional public transit and diverse culinary options ranging from ramen stalls to Michelin dining.',
-                peakSeason: 'Mar - May (Cherry Blossom), Oct - Nov',
-                localCurr: 'JPY (¥)',
-                tip: 'Buy a 72-hour Tokyo Subway Ticket for unlimited cheap transit.',
-                inclusions: {
-                    acc: 'Business hotels, capsule hotels, or Airbnb with local tourist tax.',
-                    food: 'Ramen/Gyudon shops, konbini lunches, and casual izakaya dinners.',
-                    trans: 'PASMO/Suica metro cards and short local train trips.',
-                    act: 'TeamLab borderless, Shrine entry, Tokyo Skytree tickets.'
-                },
-                hotels: [
-                    { tier: 'Budget', name: 'Nui. Hostel & Bar Lounge', priceUSD: 35, highlights: 'Social atmosphere, river views, cozy capsule/dorm rooms.', query: 'Nui Hostel Tokyo booking' },
-                    { tier: 'Mid-Range', name: 'Hotel Gracery Shinjuku', priceUSD: 130, highlights: 'Famous Godzilla head view, central Shinjuku location.', query: 'Hotel Gracery Shinjuku booking' },
-                    { tier: 'Luxury', name: 'Aman Tokyo', priceUSD: 950, highlights: 'Panoramic skyline views, world-class spa, luxury ryokan feel.', query: 'Aman Tokyo booking' }
-                ],
-                dining: [
-                    { tier: 'Cheap Eats', name: 'Ichiran Ramen & Sukiya', priceUSD: 8, description: 'Famous solo ramen booths and beef bowl sets.', query: 'Ichiran Ramen Tokyo' },
-                    { tier: 'Casual Bistro', name: 'Torikizoku Izakaya', priceUSD: 25, description: 'All items flat-rate yakitori skewers and draft beer.', query: 'Torikizoku Tokyo' },
-                    { tier: 'Fine Dining', name: 'Sukiyabashi Jiro or Den', priceUSD: 220, description: 'World-renowned multi-course omakase sushi experience.', query: 'Den restaurant Tokyo Michelin' }
-                ]
-            },
-            {
-                id: 'bali',
-                name: 'Bali, Indonesia',
-                tier: 'Low-Moderate',
-                tierClass: 'text-emerald-500',
-                baseDaily: 55,
-                accRatio: 0.40, foodRatio: 0.25, transRatio: 0.15, actRatio: 0.20,
-                flightAvg: 900,
-                description: 'Tropical paradise known for lush beach resorts, vibrant culture, volcanic mountains, and affordable luxury villas.',
-                peakSeason: 'June - August',
-                localCurr: 'IDR (Rp)',
-                tip: 'Rent a scooter or use Grab/Gojek apps for cheap transit.',
-                inclusions: {
-                    acc: 'Boutique bamboo villas, guesthouses with pools, or hostels.',
-                    food: 'Local Warung rice dishes, tropical smoothie bowls, beach grills.',
-                    trans: 'Scooter rentals or Gojek/Grab ride-hailing services.',
-                    act: 'Waterfall passes, temple entries, surfing lessons, scuba diving.'
-                },
-                hotels: [
-                    { tier: 'Budget', name: 'Kosta Hostel Seminyak', priceUSD: 18, highlights: 'Cozy boho vibe, outdoor pool, healthy cafe.', query: 'Kosta Hostel Seminyak' },
-                    { tier: 'Mid-Range', name: 'Ubud Tropical Boutique Resort', priceUSD: 75, highlights: 'Infinity pool facing jungle, private balcony.', query: 'Ubud Tropical Resort' },
-                    { tier: 'Luxury', name: 'Viceroy Bali (Ubud)', priceUSD: 600, highlights: 'Private pool villas overlooking Petanu River valley.', query: 'Viceroy Bali booking' }
-                ],
-                dining: [
-                    { tier: 'Cheap Eats', name: 'Warung Babi Guling Ibu Oka', priceUSD: 4, description: 'Traditional Balinese roasted pork rice sets.', query: 'Warung Ibu Oka Ubud' },
-                    { tier: 'Casual Bistro', name: 'Sisterfields Cafe Seminyak', priceUSD: 15, description: 'Australian-style brunch with fresh juices.', query: 'Sisterfields Seminyak' },
-                    { tier: 'Fine Dining', name: 'Locavore NEX', priceUSD: 110, description: 'Innovative sustainable hyper-local fine dining.', query: 'Locavore Bali restaurant' }
-                ]
-            },
-            {
-                id: 'paris',
-                name: 'Paris, France',
-                tier: 'High',
-                tierClass: 'text-amber-500',
-                baseDaily: 160,
-                accRatio: 0.48, foodRatio: 0.27, transRatio: 0.10, actRatio: 0.15,
-                flightAvg: 600,
-                description: 'Global center for art, fashion, gastronomy, and culture. World-famous museums, iconic landmarks, and romantic cafes.',
-                peakSeason: 'June - August',
-                localCurr: 'EUR (€)',
-                tip: 'Get a Paris Museum Pass to skip lines and save money.',
-                inclusions: {
-                    acc: 'Central boutique hotels, apartments, or Parisian hostels.',
-                    food: 'Boulangerie croissants, bistro fixed lunch menus, wine & cheese.',
-                    trans: 'Navigo Easy Metro card and RER train tickets.',
-                    act: 'Louvre, Eiffel Tower summit, Seine cruise passes.'
-                },
-                hotels: [
-                    { tier: 'Budget', name: 'Les Piaules Belleville Hostel', priceUSD: 45, highlights: 'Rooftop bar with views of Paris landmarks.', query: 'Les Piaules Belleville' },
-                    { tier: 'Mid-Range', name: 'CitizenM Paris Gare de Lyon', priceUSD: 180, highlights: 'Modern compact luxury rooms with iPad controls.', query: 'CitizenM Paris Gare de Lyon' },
-                    { tier: 'Luxury', name: 'Le Meurice', priceUSD: 1100, highlights: 'Historic palace hotel next to Tuileries Garden.', query: 'Le Meurice Paris booking' }
-                ],
-                dining: [
-                    { tier: 'Cheap Eats', name: 'L\'As du Fallafel', priceUSD: 10, description: 'Legendary falafel pita in the historic Marais district.', query: 'L As du Fallafel Paris' },
-                    { tier: 'Casual Bistro', name: 'Bouillon Chartier', priceUSD: 25, description: 'Classic French traditional dishes at unbeatable prices.', query: 'Bouillon Chartier Paris' },
-                    { tier: 'Fine Dining', name: 'Le Jules Verne (Eiffel Tower)', priceUSD: 250, description: 'Michelin-starred dining on the 2nd floor of Eiffel Tower.', query: 'Le Jules Verne Paris' }
-                ]
-            },
-            {
-                id: 'nyc',
-                name: 'New York City, USA',
-                tier: 'Very High',
-                tierClass: 'text-rose-500',
-                baseDaily: 230,
-                accRatio: 0.52, foodRatio: 0.22, transRatio: 0.10, actRatio: 0.16,
-                flightAvg: 350,
-                description: 'The city that never sleeps. Famous Broadway shows, Central Park, world-class museums, and diverse neighborhoods.',
-                peakSeason: 'Sept - Dec',
-                localCurr: 'USD ($)',
-                tip: 'Use the subway with OMNY contactless payments.',
-                inclusions: {
-                    acc: 'Midtown or Brooklyn hotels with municipal taxes.',
-                    food: 'Dollar slice pizza, bodega bagels, food hall meals, dinners.',
-                    trans: 'OMNY Metro card unlimited rides.',
-                    act: 'Broadway tickets, MET museum entry, Empire State observation.'
-                },
-                hotels: [
-                    { tier: 'Budget', name: 'HI NYC Hostel (Upper West)', priceUSD: 65, highlights: 'Historic building, large courtyard, close to Central Park.', query: 'HI NYC Hostel' },
-                    { tier: 'Mid-Range', name: 'Arlo NoMad Hotel', priceUSD: 240, highlights: 'Micro-rooms with floor-to-ceiling glass skyline views.', query: 'Arlo NoMad NYC' },
-                    { tier: 'Luxury', name: 'The Plaza Hotel', priceUSD: 900, highlights: 'Iconic luxury at 5th Avenue and Central Park South.', query: 'The Plaza Hotel NYC' }
-                ],
-                dining: [
-                    { tier: 'Cheap Eats', name: 'Joe\'s Pizza & Ess-a-Bagel', priceUSD: 8, description: 'Classic NYC bagel with cream cheese or NY cheese slice.', query: 'Joes Pizza NYC' },
-                    { tier: 'Casual Bistro', name: 'Katz\'s Delicatessen', priceUSD: 30, description: 'World-famous piled-high pastrami on rye sandwich.', query: 'Katzs Delicatessen NYC' },
-                    { tier: 'Fine Dining', name: 'Eleven Madison Park', priceUSD: 365, description: '3-Michelin star plant-based fine dining experience.', query: 'Eleven Madison Park NYC' }
-                ]
-            },
-            {
-                id: 'bangkok',
-                name: 'Bangkok, Thailand',
-                tier: 'Low',
-                tierClass: 'text-emerald-500',
-                baseDaily: 45,
-                accRatio: 0.38, foodRatio: 0.30, transRatio: 0.12, actRatio: 0.20,
-                flightAvg: 800,
-                description: 'Famous for vibrant street life, ornate shrines, rich culinary delights, and lively boat rides on the Chao Phraya river.',
-                peakSeason: 'Nov - Feb',
-                localCurr: 'THB (฿)',
-                tip: 'Eat at street stalls for delicious meals under $3.',
-                inclusions: {
-                    acc: 'Riverfront hotels, modern condos, or design hostels.',
-                    food: 'Street stall Pad Thai, Mango Sticky Rice, night market feasts.',
-                    trans: 'BTS Skytrain, MRT subway, and Chao Phraya express boats.',
-                    act: 'Grand Palace entrance, Wat Arun, Thai massage sessions.'
-                },
-                hotels: [
-                    { tier: 'Budget', name: 'Lub d Bangkok Siam', priceUSD: 20, highlights: 'Next to BTS Skytrain, modern social hostel.', query: 'Lub d Bangkok Siam' },
-                    { tier: 'Mid-Range', name: 'Siam@Siam Design Hotel', priceUSD: 80, highlights: 'Rooftop infinity pool, eccentric artistic decor.', query: 'Siam at Siam Bangkok' },
-                    { tier: 'Luxury', name: 'Mandarin Oriental Bangkok', priceUSD: 550, highlights: 'Legendary riverside service and historical elegance.', query: 'Mandarin Oriental Bangkok' }
-                ],
-                dining: [
-                    { tier: 'Cheap Eats', name: 'Jay Fai Street Food or Thip Samai', priceUSD: 5, description: 'World famous Pad Thai and Michelin street food.', query: 'Thip Samai Pad Thai Bangkok' },
-                    { tier: 'Casual Bistro', name: 'Cabbages & Condoms Restaurant', priceUSD: 20, description: 'Delicious authentic Thai in a beautiful garden setting.', query: 'Cabbages and Condoms Bangkok' },
-                    { tier: 'Fine Dining', name: 'Gaggan Anand', priceUSD: 180, description: 'Progressive progressive Indian/Asian tasting menus.', query: 'Gaggan Anand Bangkok' }
-                ]
-            },
-            {
-                id: 'london',
-                name: 'London, UK',
-                tier: 'High',
-                tierClass: 'text-amber-500',
-                baseDaily: 175,
-                accRatio: 0.50, foodRatio: 0.22, transRatio: 0.13, actRatio: 0.15,
-                flightAvg: 550,
-                description: 'Rich history meets modern innovation. World-class free museums, West End theatre, and iconic historical sites.',
-                peakSeason: 'May - Sept',
-                localCurr: 'GBP (£)',
-                tip: 'Many major national museums are completely free!',
-                inclusions: {
-                    acc: 'Central London hotels, bed & breakfasts, or boutique apartments.',
-                    food: 'Pub lunches, fish & chips, ethnic markets (Borough Market).',
-                    trans: 'Oyster card or contactless Tube & red bus rides.',
-                    act: 'Tower of London tickets, West End musicals, London Eye.'
-                },
-                hotels: [
-                    { tier: 'Budget', name: 'Wombat\'s City Hostel London', priceUSD: 50, highlights: 'Close to Tower Bridge, lively basement bar.', query: 'Wombats Hostel London' },
-                    { tier: 'Mid-Range', name: 'The Hoxton (Holborn)', priceUSD: 220, highlights: 'Stylish lobby vibe, central location near West End.', query: 'The Hoxton Holborn London' },
-                    { tier: 'Luxury', name: 'The Savoy', priceUSD: 850, highlights: 'Historic luxury on the Strand overlooking Thames.', query: 'The Savoy London booking' }
-                ],
-                dining: [
-                    { tier: 'Cheap Eats', name: 'Borough Market Stalls', priceUSD: 12, description: 'Artisanal sausage rolls, duck wraps, and fresh bakery goods.', query: 'Borough Market London food' },
-                    { tier: 'Casual Bistro', name: 'Dishoom (Covent Garden)', priceUSD: 35, description: 'Irani cafe style Bombay street food & black daal.', query: 'Dishoom Covent Garden' },
-                    { tier: 'Fine Dining', name: 'Gordon Ramsay Restaurant', priceUSD: 260, description: 'Flagship 3-Michelin star elegant British French cuisine.', query: 'Restaurant Gordon Ramsay London' }
-                ]
-            },
-            {
-                id: 'rome',
-                name: 'Rome, Italy',
-                tier: 'Moderate',
-                tierClass: 'text-sky-500',
-                baseDaily: 120,
-                accRatio: 0.45, foodRatio: 0.30, transRatio: 0.10, actRatio: 0.15,
-                flightAvg: 650,
-                description: 'An open-air museum filled with ancient Roman ruins, breathtaking architecture, and unforgettable pasta and gelato.',
-                peakSeason: 'May - Sept',
-                localCurr: 'EUR (€)',
-                tip: 'Refill water bottles at public free water fountains (nasoni).',
-                inclusions: {
-                    acc: 'Italian guest houses (affittacamere), Airbnbs, or hotels.',
-                    food: 'Trattoria Carbonara & Cacio e Pepe, pizza al taglio, gelato.',
-                    trans: 'ATAC metro, tram, and bus single/day passes.',
-                    act: 'Colosseum & Forum access, Vatican Museum tickets.'
-                },
-                hotels: [
-                    { tier: 'Budget', name: 'The YellowSquare Rome', priceUSD: 38, highlights: 'Fun party hostel with co-working space and rooftop.', query: 'The YellowSquare Rome' },
-                    { tier: 'Mid-Range', name: 'Hotel Artemide', priceUSD: 170, highlights: 'Rooftop bar overlooking Rome, free minibar.', query: 'Hotel Artemide Rome' },
-                    { tier: 'Luxury', name: 'Hotel Eden (Dorchester Collection)', priceUSD: 900, highlights: 'Panoramic rooftop dining, steps from Spanish Steps.', query: 'Hotel Eden Rome' }
-                ],
-                dining: [
-                    { tier: 'Cheap Eats', name: 'Pizzarium Bonci', priceUSD: 9, description: 'Famous Roman crispy sheet pizza sold by weight.', query: 'Pizzarium Bonci Rome' },
-                    { tier: 'Casual Bistro', name: 'Da Enzo al 29 (Trastevere)', priceUSD: 28, description: 'Authentic Roman pasta, artichokes, and house wine.', query: 'Da Enzo al 29 Rome' },
-                    { tier: 'Fine Dining', name: 'La Pergola', priceUSD: 310, description: 'Rome’s only 3-Michelin star restaurant with city views.', query: 'La Pergola Rome restaurant' }
-                ]
-            },
-            {
-                id: 'cancun',
-                name: 'Cancun & Riviera Maya, Mexico',
-                tier: 'Moderate',
-                tierClass: 'text-sky-500',
-                baseDaily: 110,
-                accRatio: 0.45, foodRatio: 0.25, transRatio: 0.12, actRatio: 0.18,
-                flightAvg: 350,
-                description: 'Beautiful Caribbean beaches, ancient Mayan ruins, world-class all-inclusive resorts, and crystal-clear cenotes.',
-                peakSeason: 'Dec - April',
-                localCurr: 'MXN ($)',
-                tip: 'Use local ADO buses instead of private airport taxis.',
-                inclusions: {
-                    acc: 'Beachfront resorts, downtown boutique stays, or condos.',
-                    food: 'Street tacos al pastor, fresh ceviche, margarita drinks.',
-                    trans: 'Hotel zone R-1/R-2 public buses or ADO intercity coaches.',
-                    act: 'Chichen Itza day tour, Cenote swims, Xcaret Eco Park entry.'
-                },
-                hotels: [
-                    { tier: 'Budget', name: 'Mayapan Hostel Cancun', priceUSD: 25, highlights: 'In hotel zone near beaches, clean and secure.', query: 'Mayapan Hostel Cancun' },
-                    { tier: 'Mid-Range', name: 'Aloft Cancun', priceUSD: 110, highlights: 'Modern vibe, walking distance to nightlife and beach.', query: 'Aloft Cancun booking' },
-                    { tier: 'Luxury', name: 'Le Blanc Spa Resort (All-Inclusive)', priceUSD: 750, highlights: 'Adults-only luxury all-inclusive white sand resort.', query: 'Le Blanc Spa Resort Cancun' }
-                ],
-                dining: [
-                    { tier: 'Cheap Eats', name: 'Taqueria Coapenitos Downtown', priceUSD: 7, description: 'Authentic Mexican street tacos and horchata.', query: 'Taqueria Coapenitos Cancun' },
-                    { tier: 'Casual Bistro', name: 'El Farito Beach Grill', priceUSD: 22, description: 'Fresh caught fish, ceviche, and cold local beers.', query: 'El Farito Cancun' },
-                    { tier: 'Fine Dining', name: 'Lorenzillo\'s Lobster House', priceUSD: 110, description: 'Live lobster dining built over the Nichupte lagoon.', query: 'Lorenzillos Cancun' }
-                ]
-            }
-        ];
+        // Default City Presets
+        const DESTINATION_PRESETS = {
+            'paris': { name: 'Paris, France', dailyAcc: 110, dailyFood: 45, dailyTrans: 15, dailyAct: 25, transitCost: 0 },
+            'nice': { name: 'Nice / French Riviera', dailyAcc: 95, dailyFood: 40, dailyTrans: 12, dailyAct: 20, transitCost: 45 },
+            'lyon': { name: 'Lyon, France', dailyAcc: 80, dailyFood: 35, dailyTrans: 10, dailyAct: 18, transitCost: 35 },
+            'tokyo': { name: 'Tokyo, Japan', dailyAcc: 90, dailyFood: 35, dailyTrans: 15, dailyAct: 20, transitCost: 0 },
+            'kyoto': { name: 'Kyoto, Japan', dailyAcc: 85, dailyFood: 30, dailyTrans: 12, dailyAct: 22, transitCost: 30 },
+            'bali': { name: 'Bali, Indonesia', dailyAcc: 40, dailyFood: 18, dailyTrans: 10, dailyAct: 15, transitCost: 0 },
+            'nyc': { name: 'New York City, USA', dailyAcc: 160, dailyFood: 55, dailyTrans: 20, dailyAct: 35, transitCost: 0 },
+            'rome': { name: 'Rome, Italy', dailyAcc: 90, dailyFood: 38, dailyTrans: 12, dailyAct: 20, transitCost: 0 },
+            'custom': { name: 'Custom Location', dailyAcc: 70, dailyFood: 30, dailyTrans: 10, dailyAct: 15, transitCost: 20 }
+        };
 
-        // Exchange Rates
         const CURRENCIES = {
             USD: { symbol: '$', rate: 1.0 },
             EUR: { symbol: '€', rate: 0.92 },
@@ -821,496 +523,716 @@
             INR: { symbol: '₹', rate: 83.4 }
         };
 
-        const STYLE_MULTIPLIERS = {
-            budget: 0.55,
-            moderate: 1.0,
-            luxury: 2.25
-        };
-
-        const CHECKLIST_ITEMS = [
-            { id: 'visa', label: 'Passport Validity (6+ months) & Visa Requirements Checked' },
-            { id: 'insurance', label: 'Travel Medical & Trip Cancellation Insurance Purchased' },
-            { id: 'flights', label: 'Roundtrip Flights or Intercity Trains Booked' },
-            { id: 'cards', label: 'No-Foreign-Fee Travel Credit Card & Local Cash Ready' },
-            { id: 'e-sim', label: 'International eSIM or Data Roaming Plan Pre-Configured' }
+        const CHECKLIST_DEFAULT = [
+            { id: 'visa', label: 'Passport Validity (6+ months) & Visas' },
+            { id: 'insurance', label: 'Travel Medical Insurance' },
+            { id: 'transit', label: 'Inter-City Trains or Flights Booked' },
+            { id: 'cards', label: 'No-Foreign-Fee Travel Cards' },
+            { id: 'esim', label: 'International eSIM / Data Plan' }
         ];
 
-        // State Object
-        let state = {
-            destination: DESTINATIONS[0],
-            durationValue: 7,
-            durationUnit: 'days',
+        // Initial Multi-Stop Trip State
+        let tripState = {
+            title: "European Multi-City Adventure",
+            currency: "USD",
             travelers: 2,
-            style: 'moderate',
-            currency: 'USD',
-            flightCost: 850,
-            fixedCost: 75,
-            monthsToSave: 6,
-            currentSavings: 500,
-            customDaily: {
-                acc: 0,
-                food: 0,
-                trans: 0,
-                act: 0
-            },
             bufferPercent: 0.10,
-            checklist: { visa: false, insurance: false, flights: false, cards: false, 'e-sim': false }
+            globalFlight: 650,
+            globalVisa: 80,
+            savingsMonths: 6,
+            currentSavings: 500,
+            checklist: { visa: false, insurance: false, transit: false, cards: false, esim: false },
+            stops: [
+                {
+                    id: 'stop-1',
+                    presetKey: 'paris',
+                    name: 'Paris (Central)',
+                    days: 5,
+                    style: 'moderate',
+                    dailyAcc: 110,
+                    dailyFood: 45,
+                    dailyTrans: 15,
+                    dailyAct: 25,
+                    intercityTransit: 0
+                },
+                {
+                    id: 'stop-2',
+                    presetKey: 'nice',
+                    name: 'Nice & French Riviera',
+                    days: 4,
+                    style: 'moderate',
+                    dailyAcc: 95,
+                    dailyFood: 40,
+                    dailyTrans: 12,
+                    dailyAct: 20,
+                    intercityTransit: 45
+                }
+            ],
+            customHotels: [
+                { id: 'h1', stopId: 'stop-1', name: 'Le Marais Boutique Hotel', price: 130, tier: 'Mid-Range', notes: 'Near Metro Line 1' },
+                { id: 'h2', stopId: 'stop-2', name: 'Hotel Promenade Nice', price: 100, tier: 'Mid-Range', notes: 'Sea view room' }
+            ],
+            customDining: [
+                { id: 'd1', stopId: 'stop-1', name: 'Bouillon Chartier Paris', price: 22, tier: 'Casual Bistro', notes: 'Classic French cuisine' },
+                { id: 'd2', stopId: 'stop-2', name: 'Chez Pipo Nice', price: 12, tier: 'Cheap Eats', notes: 'Best Socca in Nice' }
+            ]
         };
 
         let chartInstance = null;
+        let chartMode = 'category';
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('year').textContent = new Date().getFullYear();
-            populateDestinations();
-            initChecklist();
+            loadLocalStorage();
             setupEventListeners();
-            updateEstimatesFromDestination();
+            renderChecklist();
             initChart();
-            calculateAndRender();
+            renderAll();
             lucide.createIcons();
         });
 
-        function populateDestinations() {
-            const select = document.getElementById('destination-select');
-            select.innerHTML = DESTINATIONS.map(d => 
-                `<option value="${d.id}">${d.name} (${d.tier})</option>`
-            ).join('');
+        function loadLocalStorage() {
+            const saved = localStorage.getItem('wanderbudget_multi_trip');
+            if (saved) {
+                try {
+                    tripState = JSON.parse(saved);
+                } catch(e) {
+                    console.error("Error loading local storage", e);
+                }
+            }
         }
 
-        function initChecklist() {
-            const container = document.getElementById('checklist-container');
-            container.innerHTML = CHECKLIST_ITEMS.map(item => `
-                <label class="flex items-center gap-3 p-2.5 rounded-xl bg-slate-100/60 dark:bg-slate-800/40 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition cursor-pointer">
-                    <input type="checkbox" data-id="${item.id}" class="checklist-check w-4 h-4 text-sky-500 rounded border-slate-300 dark:border-slate-700 focus:ring-sky-500">
-                    <span class="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">${item.label}</span>
-                </label>
-            `).join('');
+        function saveToLocalStorage() {
+            localStorage.setItem('wanderbudget_multi_trip', JSON.stringify(tripState));
+            const statusBtn = document.getElementById('save-status-btn');
+            statusBtn.classList.remove('hidden');
+            setTimeout(() => {
+                statusBtn.classList.add('hidden');
+            }, 1500);
         }
 
         function setupEventListeners() {
-            // Theme toggle
             document.getElementById('theme-toggle').addEventListener('click', () => {
                 document.documentElement.classList.toggle('dark');
             });
 
-            // Tab Navigation
+            // Trip Title
+            const titleInput = document.getElementById('trip-title-input');
+            titleInput.value = tripState.title;
+            titleInput.addEventListener('input', (e) => {
+                tripState.title = e.target.value;
+                saveToLocalStorage();
+            });
+
+            // Currency Switcher
+            const currSelect = document.getElementById('currency-select');
+            currSelect.value = tripState.currency;
+            currSelect.addEventListener('change', (e) => {
+                const oldRate = CURRENCIES[tripState.currency].rate;
+                tripState.currency = e.target.value;
+                const newRate = CURRENCIES[tripState.currency].rate;
+                const conversionRatio = newRate / oldRate;
+
+                // Adjust costs by currency
+                tripState.globalFlight *= conversionRatio;
+                tripState.globalVisa *= conversionRatio;
+                tripState.currentSavings *= conversionRatio;
+                tripState.stops.forEach(s => {
+                    s.dailyAcc *= conversionRatio;
+                    s.dailyFood *= conversionRatio;
+                    s.dailyTrans *= conversionRatio;
+                    s.dailyAct *= conversionRatio;
+                    s.intercityTransit *= conversionRatio;
+                });
+                tripState.customHotels.forEach(h => h.price *= conversionRatio);
+                tripState.customDining.forEach(d => d.price *= conversionRatio);
+
+                updateGlobalInputs();
+                saveToLocalStorage();
+                renderAll();
+            });
+
+            // Global inputs
+            document.getElementById('global-travelers').value = tripState.travelers;
+            document.getElementById('global-travelers').addEventListener('change', (e) => {
+                tripState.travelers = parseInt(e.target.value);
+                saveToLocalStorage();
+                renderAll();
+            });
+
+            document.getElementById('global-buffer').value = tripState.bufferPercent;
+            document.getElementById('global-buffer').addEventListener('change', (e) => {
+                tripState.bufferPercent = parseFloat(e.target.value);
+                saveToLocalStorage();
+                renderAll();
+            });
+
+            document.getElementById('global-flight').value = Math.round(tripState.globalFlight);
+            document.getElementById('global-flight').addEventListener('input', (e) => {
+                tripState.globalFlight = parseFloat(e.target.value) || 0;
+                saveToLocalStorage();
+                renderAll();
+            });
+
+            document.getElementById('global-visa').value = Math.round(tripState.globalVisa);
+            document.getElementById('global-visa').addEventListener('input', (e) => {
+                tripState.globalVisa = parseFloat(e.target.value) || 0;
+                saveToLocalStorage();
+                renderAll();
+            });
+
+            // Add Stop
+            document.getElementById('add-stop-btn').addEventListener('click', () => {
+                const newId = 'stop-' + Date.now();
+                tripState.stops.push({
+                    id: newId,
+                    presetKey: 'custom',
+                    name: `Stop ${tripState.stops.length + 1}`,
+                    days: 3,
+                    style: 'moderate',
+                    dailyAcc: 70,
+                    dailyFood: 30,
+                    dailyTrans: 10,
+                    dailyAct: 15,
+                    intercityTransit: 25
+                });
+                saveToLocalStorage();
+                renderAll();
+            });
+
+            document.getElementById('reset-trip-btn').addEventListener('click', () => {
+                if(confirm("Are you sure you want to reset this trip?")) {
+                    localStorage.removeItem('wanderbudget_multi_trip');
+                    location.reload();
+                }
+            });
+
+            // Tabs
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('.tab-btn').forEach(b => {
-                        b.className = 'tab-btn flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800';
+                        b.className = 'tab-btn flex-1 py-2 px-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800';
                     });
-                    btn.className = 'tab-btn flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition bg-sky-500 text-white shadow-md';
+                    btn.className = 'tab-btn flex-1 py-2 px-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1 transition bg-sky-500 text-white shadow-md';
 
-                    const targetTab = btn.getAttribute('data-tab');
+                    const tabId = btn.getAttribute('data-tab');
                     document.querySelectorAll('.tab-content').forEach(tc => tc.classList.add('hidden'));
-                    document.getElementById(targetTab).classList.remove('hidden');
+                    document.getElementById(tabId).classList.remove('hidden');
                 });
             });
 
-            // Destination change
-            document.getElementById('destination-select').addEventListener('change', (e) => {
-                const found = DESTINATIONS.find(d => d.id === e.target.value);
-                if (found) {
-                    state.destination = found;
-                    state.flightCost = found.flightAvg;
-                    document.getElementById('flight-cost-input').value = Math.round(state.flightCost * CURRENCIES[state.currency].rate);
-                    updateEstimatesFromDestination();
-                    calculateAndRender();
-                }
+            // Chart Mode Switches
+            document.getElementById('chart-type-category').addEventListener('click', () => {
+                chartMode = 'category';
+                document.getElementById('chart-type-category').className = 'px-2 py-1 rounded bg-sky-500/10 text-sky-500 text-[10px] font-bold';
+                document.getElementById('chart-type-stop').className = 'px-2 py-1 rounded bg-slate-200 dark:bg-slate-800 text-slate-500 text-[10px] font-bold';
+                renderChart();
+            });
+            document.getElementById('chart-type-stop').addEventListener('click', () => {
+                chartMode = 'stop';
+                document.getElementById('chart-type-stop').className = 'px-2 py-1 rounded bg-sky-500/10 text-sky-500 text-[10px] font-bold';
+                document.getElementById('chart-type-category').className = 'px-2 py-1 rounded bg-slate-200 dark:bg-slate-800 text-slate-500 text-[10px] font-bold';
+                renderChart();
             });
 
-            // Duration input & unit
-            document.getElementById('duration-input').addEventListener('input', (e) => {
-                state.durationValue = Math.max(1, parseInt(e.target.value) || 1);
-                calculateAndRender();
+            // Savings Tracker Inputs
+            document.getElementById('savings-months').value = tripState.savingsMonths;
+            document.getElementById('savings-months').addEventListener('input', (e) => {
+                tripState.savingsMonths = Math.max(1, parseInt(e.target.value) || 1);
+                saveToLocalStorage();
+                renderSavings();
             });
 
-            document.getElementById('duration-unit').addEventListener('change', (e) => {
-                state.durationUnit = e.target.value;
-                calculateAndRender();
+            document.getElementById('savings-current').value = Math.round(tripState.currentSavings);
+            document.getElementById('savings-current').addEventListener('input', (e) => {
+                tripState.currentSavings = Math.max(0, parseFloat(e.target.value) || 0);
+                saveToLocalStorage();
+                renderSavings();
             });
 
-            document.getElementById('travelers-select').addEventListener('change', (e) => {
-                state.travelers = parseInt(e.target.value);
-                calculateAndRender();
-            });
+            // Modals
+            document.getElementById('open-add-hotel-modal').addEventListener('click', () => openModal('add-hotel-modal'));
+            document.getElementById('open-add-dining-modal').addEventListener('click', () => openModal('add-dining-modal'));
+            document.querySelectorAll('.close-modal').forEach(b => b.addEventListener('click', () => {
+                document.getElementById('add-hotel-modal').classList.add('hidden');
+                document.getElementById('add-dining-modal').classList.add('hidden');
+            }));
 
-            // Travel Style Buttons
-            document.querySelectorAll('#style-toggle-group .style-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('#style-toggle-group .style-btn').forEach(b => {
-                        b.className = 'style-btn px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center gap-1 transition text-slate-600 dark:text-slate-400 hover:border-sky-500';
-                    });
-                    btn.className = 'style-btn px-3 py-2.5 rounded-xl border-2 border-sky-500 bg-sky-500/10 text-sky-600 dark:text-sky-400 flex flex-col items-center justify-center gap-1 transition font-semibold';
-                    state.style = btn.getAttribute('data-style');
-                    updateEstimatesFromDestination();
-                    calculateAndRender();
+            // Modal Forms
+            document.getElementById('add-hotel-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                tripState.customHotels.push({
+                    id: 'h-' + Date.now(),
+                    stopId: document.getElementById('modal-hotel-stop').value,
+                    name: document.getElementById('modal-hotel-name').value,
+                    price: parseFloat(document.getElementById('modal-hotel-price').value) || 0,
+                    tier: document.getElementById('modal-hotel-tier').value,
+                    notes: document.getElementById('modal-hotel-notes').value
                 });
+                saveToLocalStorage();
+                renderCustomHotels();
+                document.getElementById('add-hotel-modal').classList.add('hidden');
             });
 
-            // Currency Selector
-            document.getElementById('currency-select').addEventListener('change', (e) => {
-                const oldCurrency = state.currency;
-                state.currency = e.target.value;
-                const conversionRatio = CURRENCIES[state.currency].rate / CURRENCIES[oldCurrency].rate;
-
-                state.customDaily.acc *= conversionRatio;
-                state.customDaily.food *= conversionRatio;
-                state.customDaily.trans *= conversionRatio;
-                state.customDaily.act *= conversionRatio;
-                state.flightCost *= conversionRatio;
-                state.fixedCost *= conversionRatio;
-                state.currentSavings *= conversionRatio;
-
-                updateInputFieldsFromState();
-                calculateAndRender();
-            });
-
-            // Custom category inputs
-            ['acc', 'food', 'trans', 'act'].forEach(cat => {
-                document.getElementById(`input-${cat}`).addEventListener('input', (e) => {
-                    state.customDaily[cat] = Math.max(0, parseFloat(e.target.value) || 0);
-                    calculateAndRender();
+            document.getElementById('add-dining-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                tripState.customDining.push({
+                    id: 'd-' + Date.now(),
+                    stopId: document.getElementById('modal-dining-stop').value,
+                    name: document.getElementById('modal-dining-name').value,
+                    price: parseFloat(document.getElementById('modal-dining-price').value) || 0,
+                    tier: document.getElementById('modal-dining-tier').value,
+                    notes: document.getElementById('modal-dining-notes').value
                 });
+                saveToLocalStorage();
+                renderCustomDining();
+                document.getElementById('add-dining-modal').classList.add('hidden');
             });
 
-            document.getElementById('buffer-select').addEventListener('change', (e) => {
-                state.bufferPercent = parseFloat(e.target.value);
-                calculateAndRender();
-            });
-
-            document.getElementById('flight-cost-input').addEventListener('input', (e) => {
-                state.flightCost = Math.max(0, parseFloat(e.target.value) || 0);
-                calculateAndRender();
-            });
-
-            document.getElementById('fixed-cost-input').addEventListener('input', (e) => {
-                state.fixedCost = Math.max(0, parseFloat(e.target.value) || 0);
-                calculateAndRender();
-            });
-
-            document.getElementById('months-to-save').addEventListener('input', (e) => {
-                state.monthsToSave = Math.max(1, parseInt(e.target.value) || 1);
-                calculateAndRender();
-            });
-
-            document.getElementById('current-savings').addEventListener('input', (e) => {
-                state.currentSavings = Math.max(0, parseFloat(e.target.value) || 0);
-                calculateAndRender();
-            });
-
-            document.addEventListener('change', (e) => {
-                if (e.target.classList.contains('checklist-check')) {
-                    const id = e.target.getAttribute('data-id');
-                    state.checklist[id] = e.target.checked;
-                    updateChecklistProgress();
-                }
-            });
-
-            document.getElementById('reset-btn').addEventListener('click', resetDefaults);
+            // Export / Import
+            document.getElementById('export-json-btn').addEventListener('click', exportJSON);
+            document.getElementById('import-json-input').addEventListener('change', importJSON);
             document.getElementById('export-pdf-btn').addEventListener('click', () => window.print());
-            document.getElementById('download-json-btn').addEventListener('click', exportJSON);
         }
 
-        function getNormalizedDays() {
-            if (state.durationUnit === 'weeks') return state.durationValue * 7;
-            if (state.durationUnit === 'months') return state.durationValue * 30;
-            return state.durationValue;
+        function updateGlobalInputs() {
+            document.querySelectorAll('.currency-symbol').forEach(el => el.textContent = CURRENCIES[tripState.currency].symbol);
+            document.getElementById('global-flight').value = Math.round(tripState.globalFlight);
+            document.getElementById('global-visa').value = Math.round(tripState.globalVisa);
+            document.getElementById('savings-current').value = Math.round(tripState.currentSavings);
         }
 
-        function updateEstimatesFromDestination() {
-            const dest = state.destination;
-            const styleMult = STYLE_MULTIPLIERS[state.style];
-            const currRate = CURRENCIES[state.currency].rate;
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('hidden');
 
-            const baseConverted = dest.baseDaily * currRate * styleMult;
-
-            state.customDaily.acc = Math.round(baseConverted * dest.accRatio);
-            state.customDaily.food = Math.round(baseConverted * dest.foodRatio);
-            state.customDaily.trans = Math.round(baseConverted * dest.transRatio);
-            state.customDaily.act = Math.round(baseConverted * dest.actRatio);
-            state.flightCost = Math.round(dest.flightAvg * currRate * (state.style === 'luxury' ? 1.8 : state.style === 'budget' ? 0.8 : 1.0));
-
-            updateInputFieldsFromState();
-            updateDestinationInsights();
-            renderHotelsAndDining();
+            const selectId = modalId === 'add-hotel-modal' ? 'modal-hotel-stop' : 'modal-dining-stop';
+            const select = document.getElementById(selectId);
+            select.innerHTML = tripState.stops.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
         }
 
-        function updateInputFieldsFromState() {
-            document.getElementById('input-acc').value = Math.round(state.customDaily.acc);
-            document.getElementById('input-food').value = Math.round(state.customDaily.food);
-            document.getElementById('input-trans').value = Math.round(state.customDaily.trans);
-            document.getElementById('input-act').value = Math.round(state.customDaily.act);
-            document.getElementById('flight-cost-input').value = Math.round(state.flightCost);
-            document.getElementById('fixed-cost-input').value = Math.round(state.fixedCost);
+        function renderAll() {
+            renderStops();
+            renderSummaryTable();
+            renderCustomHotels();
+            renderCustomDining();
+            renderSavings();
+            renderChart();
+            lucide.createIcons();
+        }
 
-            document.querySelectorAll('.currency-symbol').forEach(el => {
-                el.textContent = CURRENCIES[state.currency].symbol;
+        function renderStops() {
+            const container = document.getElementById('stops-container');
+            container.innerHTML = tripState.stops.map((stop, index) => {
+                return `
+                    <div class="glass-panel p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-full bg-sky-500 text-white font-extrabold text-xs flex items-center justify-center">${index + 1}</span>
+                                <input type="text" data-id="${stop.id}" class="stop-name-input text-base font-bold bg-transparent border-b border-dashed border-slate-400 focus:border-sky-500 text-slate-900 dark:text-white focus:outline-none" value="${stop.name}">
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <select data-id="${stop.id}" class="stop-preset-select bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-semibold p-1">
+                                    <option value="custom" ${stop.presetKey === 'custom' ? 'selected' : ''}>Custom Preset</option>
+                                    <option value="paris" ${stop.presetKey === 'paris' ? 'selected' : ''}>Paris</option>
+                                    <option value="nice" ${stop.presetKey === 'nice' ? 'selected' : ''}>Nice / Cote d'Azur</option>
+                                    <option value="lyon" ${stop.presetKey === 'lyon' ? 'selected' : ''}>Lyon</option>
+                                    <option value="tokyo" ${stop.presetKey === 'tokyo' ? 'selected' : ''}>Tokyo</option>
+                                    <option value="kyoto" ${stop.presetKey === 'kyoto' ? 'selected' : ''}>Kyoto</option>
+                                    <option value="bali" ${stop.presetKey === 'bali' ? 'selected' : ''}>Bali</option>
+                                    <option value="nyc" ${stop.presetKey === 'nyc' ? 'selected' : ''}>NYC</option>
+                                    <option value="rome" ${stop.presetKey === 'rome' ? 'selected' : ''}>Rome</option>
+                                </select>
+                                ${tripState.stops.length > 1 ? `
+                                    <button data-id="${stop.id}" class="remove-stop-btn text-slate-400 hover:text-rose-500 p-1">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <!-- Stop Inputs Grid -->
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                            <div>
+                                <label class="block text-slate-500 mb-1">Duration (Days)</label>
+                                <input type="number" data-id="${stop.id}" data-field="days" value="${stop.days}" min="1" class="stop-num-input w-full p-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-slate-500 mb-1">Accommodation / Day</label>
+                                <div class="relative">
+                                    <span class="currency-symbol absolute left-2 top-2 text-slate-400">$</span>
+                                    <input type="number" data-id="${stop.id}" data-field="dailyAcc" value="${Math.round(stop.dailyAcc)}" min="0" class="stop-num-input w-full pl-5 pr-2 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-slate-500 mb-1">Food & Dining / Day</label>
+                                <div class="relative">
+                                    <span class="currency-symbol absolute left-2 top-2 text-slate-400">$</span>
+                                    <input type="number" data-id="${stop.id}" data-field="dailyFood" value="${Math.round(stop.dailyFood)}" min="0" class="stop-num-input w-full pl-5 pr-2 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-slate-500 mb-1">Local Transport / Day</label>
+                                <div class="relative">
+                                    <span class="currency-symbol absolute left-2 top-2 text-slate-400">$</span>
+                                    <input type="number" data-id="${stop.id}" data-field="dailyTrans" value="${Math.round(stop.dailyTrans)}" min="0" class="stop-num-input w-full pl-5 pr-2 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-slate-500 mb-1">Activities / Day</label>
+                                <div class="relative">
+                                    <span class="currency-symbol absolute left-2 top-2 text-slate-400">$</span>
+                                    <input type="number" data-id="${stop.id}" data-field="dailyAct" value="${Math.round(stop.dailyAct)}" min="0" class="stop-num-input w-full pl-5 pr-2 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-slate-500 mb-1">Inter-city Transit Cost</label>
+                                <div class="relative">
+                                    <span class="currency-symbol absolute left-2 top-2 text-slate-400">$</span>
+                                    <input type="number" data-id="${stop.id}" data-field="intercityTransit" value="${Math.round(stop.intercityTransit)}" min="0" class="stop-num-input w-full pl-5 pr-2 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Attach listeners to dynamically created stop inputs
+            document.querySelectorAll('.stop-name-input').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    const stop = tripState.stops.find(s => s.id === id);
+                    if (stop) {
+                        stop.name = e.target.value;
+                        saveToLocalStorage();
+                        renderSummaryTable();
+                        renderChart();
+                    }
+                });
+            });
+
+            document.querySelectorAll('.stop-preset-select').forEach(select => {
+                select.addEventListener('change', (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    const preset = DESTINATION_PRESETS[e.target.value];
+                    const stop = tripState.stops.find(s => s.id === id);
+                    if (stop && preset) {
+                        stop.presetKey = e.target.value;
+                        if(e.target.value !== 'custom') {
+                            stop.name = preset.name;
+                        }
+                        const rate = CURRENCIES[tripState.currency].rate;
+                        stop.dailyAcc = preset.dailyAcc * rate;
+                        stop.dailyFood = preset.dailyFood * rate;
+                        stop.dailyTrans = preset.dailyTrans * rate;
+                        stop.dailyAct = preset.dailyAct * rate;
+                        stop.intercityTransit = preset.transitCost * rate;
+
+                        saveToLocalStorage();
+                        renderAll();
+                    }
+                });
+            });
+
+            document.querySelectorAll('.stop-num-input').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    const field = e.target.getAttribute('data-field');
+                    const stop = tripState.stops.find(s => s.id === id);
+                    if (stop) {
+                        stop[field] = Math.max(0, parseFloat(e.target.value) || 0);
+                        saveToLocalStorage();
+                        renderSummaryTable();
+                        renderChart();
+                        renderSavings();
+                    }
+                });
+            });
+
+            document.querySelectorAll('.remove-stop-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = btn.getAttribute('data-id');
+                    tripState.stops = tripState.stops.filter(s => s.id !== id);
+                    tripState.customHotels = tripState.customHotels.filter(h => h.stopId !== id);
+                    tripState.customDining = tripState.customDining.filter(d => d.stopId !== id);
+                    saveToLocalStorage();
+                    renderAll();
+                });
             });
         }
 
-        function updateDestinationInsights() {
-            const dest = state.destination;
-            document.getElementById('tier-badge').textContent = `${dest.tier} Cost`;
-            document.getElementById('tier-badge').className = `font-semibold ${dest.tierClass}`;
-            document.getElementById('base-cost-display').textContent = formatCurrency(dest.baseDaily * CURRENCIES[state.currency].rate);
-            
-            document.getElementById('dest-description').textContent = dest.description;
-            document.getElementById('peak-season').textContent = dest.peakSeason;
-            document.getElementById('local-curr').textContent = dest.localCurr;
-            document.getElementById('budget-tip').textContent = dest.tip;
+        function calculateTotals() {
+            let totalDays = 0;
+            let stopsDailyTotalPerPerson = 0;
+            let stopsTransitTotalPerPerson = 0;
 
-            // Update inclusions grid
-            const inc = dest.inclusions;
-            document.getElementById('inclusions-grid').innerHTML = `
-                <div class="p-3 bg-slate-100/70 dark:bg-slate-800/40 rounded-xl space-y-1">
-                    <span class="font-semibold text-sky-500 flex items-center gap-1"><i data-lucide="hotel" class="w-3.5 h-3.5"></i> Accommodation</span>
-                    <p class="text-slate-600 dark:text-slate-400">${inc.acc}</p>
-                </div>
-                <div class="p-3 bg-slate-100/70 dark:bg-slate-800/40 rounded-xl space-y-1">
-                    <span class="font-semibold text-emerald-500 flex items-center gap-1"><i data-lucide="utensils" class="w-3.5 h-3.5"></i> Food & Dining</span>
-                    <p class="text-slate-600 dark:text-slate-400">${inc.food}</p>
-                </div>
-                <div class="p-3 bg-slate-100/70 dark:bg-slate-800/40 rounded-xl space-y-1">
-                    <span class="font-semibold text-amber-500 flex items-center gap-1"><i data-lucide="bus" class="w-3.5 h-3.5"></i> Local Transport</span>
-                    <p class="text-slate-600 dark:text-slate-400">${inc.trans}</p>
-                </div>
-                <div class="p-3 bg-slate-100/70 dark:bg-slate-800/40 rounded-xl space-y-1">
-                    <span class="font-semibold text-purple-500 flex items-center gap-1"><i data-lucide="ticket" class="w-3.5 h-3.5"></i> Activities & Tours</span>
-                    <p class="text-slate-600 dark:text-slate-400">${inc.act}</p>
-                </div>
+            let stopSummaries = tripState.stops.map(stop => {
+                totalDays += stop.days;
+                const dailyTotal = stop.dailyAcc + stop.dailyFood + stop.dailyTrans + stop.dailyAct;
+                const buffer = dailyTotal * tripState.bufferPercent;
+                const dailyWithBuffer = dailyTotal + buffer;
+                
+                const stopTotalPerPerson = (dailyWithBuffer * stop.days) + stop.intercityTransit;
+                const stopGroupTotal = stopTotalPerPerson * tripState.travelers;
+
+                stopsDailyTotalPerPerson += dailyWithBuffer * stop.days;
+                stopsTransitTotalPerPerson += stop.intercityTransit;
+
+                return {
+                    id: stop.id,
+                    name: stop.name,
+                    days: stop.days,
+                    perPerson: stopTotalPerPerson,
+                    groupTotal: stopGroupTotal,
+                    dailyAccTotal: stop.dailyAcc * stop.days,
+                    dailyFoodTotal: stop.dailyFood * stop.days,
+                    dailyTransTotal: stop.dailyTrans * stop.days,
+                    dailyActTotal: stop.dailyAct * stop.days,
+                    bufferTotal: buffer * stop.days,
+                    intercityTransit: stop.intercityTransit
+                };
+            });
+
+            const fixedPerPerson = tripState.globalFlight + tripState.globalVisa;
+            const grandTotalPerPerson = stopsDailyTotalPerPerson + stopsTransitTotalPerPerson + fixedPerPerson;
+            const grandTotalTrip = grandTotalPerPerson * tripState.travelers;
+
+            return {
+                totalDays,
+                stopSummaries,
+                grandTotalPerPerson,
+                grandTotalTrip
+            };
+        }
+
+        function renderSummaryTable() {
+            const { totalDays, stopSummaries, grandTotalPerPerson, grandTotalTrip } = calculateTotals();
+
+            // Render Executive KPIs
+            document.getElementById('kpi-total-budget').textContent = formatCurrency(grandTotalTrip);
+            document.getElementById('kpi-per-person').textContent = formatCurrency(grandTotalPerPerson);
+            document.getElementById('kpi-total-days').textContent = `${totalDays} Days`;
+            document.getElementById('kpi-total-stops').textContent = `${tripState.stops.length} Stops`;
+
+            const tbody = document.getElementById('multi-stop-summary-tbody');
+            let rowsHtml = stopSummaries.map(s => `
+                <tr>
+                    <td class="py-2 px-2 font-bold text-slate-900 dark:text-white">${s.name}</td>
+                    <td class="py-2 px-2 text-center text-slate-500">${s.days}d</td>
+                    <td class="py-2 px-2 text-right font-semibold">${formatCurrency(s.perPerson)}</td>
+                    <td class="py-2 px-2 text-right font-extrabold text-sky-500">${formatCurrency(s.groupTotal)}</td>
+                </tr>
+            `).join('');
+
+            // Add fixed costs row
+            const fixedGroup = (tripState.globalFlight + tripState.globalVisa) * tripState.travelers;
+            rowsHtml += `
+                <tr class="bg-slate-100/50 dark:bg-slate-800/50">
+                    <td class="py-2 px-2 font-semibold text-slate-500" colspan="2">Flights & Visas (Global)</td>
+                    <td class="py-2 px-2 text-right font-semibold">${formatCurrency(tripState.globalFlight + tripState.globalVisa)}</td>
+                    <td class="py-2 px-2 text-right font-bold">${formatCurrency(fixedGroup)}</td>
+                </tr>
             `;
-            lucide.createIcons();
+
+            tbody.innerHTML = rowsHtml;
         }
 
-        // Render Hotel & Dining Recommendations
-        function renderHotelsAndDining() {
-            const dest = state.destination;
-            const rate = CURRENCIES[state.currency].rate;
+        function renderCustomHotels() {
+            const container = document.getElementById('custom-hotels-list');
+            if(tripState.customHotels.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 italic">No custom stays saved yet. Click "Add Hotel" to attach options.</p>`;
+                return;
+            }
 
-            document.getElementById('hotel-dest-name').textContent = dest.name;
-            document.getElementById('dining-dest-name').textContent = dest.name;
-
-            document.getElementById('search-all-hotels-link').href = `https://www.google.com/search?q=hotels+in+${encodeURIComponent(dest.name)}`;
-            document.getElementById('search-all-dining-link').href = `https://www.google.com/search?q=best+restaurants+in+${encodeURIComponent(dest.name)}`;
-
-            // Render Hotels
-            const hotelContainer = document.getElementById('hotels-container');
-            hotelContainer.innerHTML = dest.hotels.map(h => {
-                const convertedPrice = Math.round(h.priceUSD * rate);
-                const googleSearch = `https://www.google.com/search?q=${encodeURIComponent(h.query)}`;
+            container.innerHTML = tripState.customHotels.map(h => {
+                const stop = tripState.stops.find(s => s.id === h.stopId) || { name: 'Unassigned' };
                 return `
-                    <div class="glass-panel p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-                        <div class="space-y-1">
-                            <div class="flex items-center gap-2">
-                                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${h.tier === 'Luxury' ? 'bg-purple-500/20 text-purple-400' : h.tier === 'Mid-Range' ? 'bg-sky-500/20 text-sky-400' : 'bg-emerald-500/20 text-emerald-400'}">${h.tier}</span>
-                                <h4 class="font-bold text-slate-900 dark:text-white text-sm">${h.name}</h4>
+                    <div class="p-3 rounded-xl bg-slate-100/80 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-2 text-xs">
+                        <div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="font-bold text-slate-900 dark:text-white">${h.name}</span>
+                                <span class="px-1.5 py-0.5 rounded text-[9px] bg-sky-500/10 text-sky-500 font-bold">${h.tier}</span>
                             </div>
-                            <p class="text-xs text-slate-500">${h.highlights}</p>
+                            <p class="text-[10px] text-slate-400">${stop.name} • ${h.notes || 'No extra notes'}</p>
                         </div>
-                        <div class="flex items-center justify-between sm:justify-end gap-3 border-t sm:border-0 pt-2 sm:pt-0 border-slate-200 dark:border-slate-800">
-                            <div class="text-left sm:text-right">
-                                <div class="text-sm font-extrabold text-slate-900 dark:text-white">${formatCurrency(convertedPrice)}</div>
-                                <div class="text-[10px] text-slate-400">/ night</div>
-                            </div>
-                            <a href="${googleSearch}" target="_blank" class="px-3 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-600 text-white text-xs font-semibold flex items-center gap-1 transition">
-                                View <i data-lucide="external-link" class="w-3 h-3"></i>
-                            </a>
+                        <div class="flex items-center gap-3">
+                            <span class="font-extrabold text-slate-900 dark:text-white">${formatCurrency(h.price)}/nt</span>
+                            <button data-id="${h.id}" class="delete-hotel-btn text-slate-400 hover:text-rose-500"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
                         </div>
                     </div>
                 `;
             }).join('');
 
-            // Render Dining
-            const diningContainer = document.getElementById('dining-container');
-            diningContainer.innerHTML = dest.dining.map(d => {
-                const convertedPrice = Math.round(d.priceUSD * rate);
-                const googleSearch = `https://www.google.com/search?q=${encodeURIComponent(d.query)}`;
+            document.querySelectorAll('.delete-hotel-btn').forEach(b => {
+                b.addEventListener('click', () => {
+                    const id = b.getAttribute('data-id');
+                    tripState.customHotels = tripState.customHotels.filter(h => h.id !== id);
+                    saveToLocalStorage();
+                    renderCustomHotels();
+                });
+            });
+            lucide.createIcons();
+        }
+
+        function renderCustomDining() {
+            const container = document.getElementById('custom-dining-list');
+            if(tripState.customDining.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 italic">No custom restaurants saved yet.</p>`;
+                return;
+            }
+
+            container.innerHTML = tripState.customDining.map(d => {
+                const stop = tripState.stops.find(s => s.id === d.stopId) || { name: 'Unassigned' };
                 return `
-                    <div class="glass-panel p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-                        <div class="space-y-1">
-                            <div class="flex items-center gap-2">
-                                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${d.tier === 'Fine Dining' ? 'bg-purple-500/20 text-purple-400' : d.tier === 'Casual Bistro' ? 'bg-sky-500/20 text-sky-400' : 'bg-emerald-500/20 text-emerald-400'}">${d.tier}</span>
-                                <h4 class="font-bold text-slate-900 dark:text-white text-sm">${d.name}</h4>
+                    <div class="p-3 rounded-xl bg-slate-100/80 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-2 text-xs">
+                        <div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="font-bold text-slate-900 dark:text-white">${d.name}</span>
+                                <span class="px-1.5 py-0.5 rounded text-[9px] bg-emerald-500/10 text-emerald-500 font-bold">${d.tier}</span>
                             </div>
-                            <p class="text-xs text-slate-500">${d.description}</p>
+                            <p class="text-[10px] text-slate-400">${stop.name} • ${d.notes || 'No extra notes'}</p>
                         </div>
-                        <div class="flex items-center justify-between sm:justify-end gap-3 border-t sm:border-0 pt-2 sm:pt-0 border-slate-200 dark:border-slate-800">
-                            <div class="text-left sm:text-right">
-                                <div class="text-sm font-extrabold text-slate-900 dark:text-white">${formatCurrency(convertedPrice)}</div>
-                                <div class="text-[10px] text-slate-400">avg / person</div>
-                            </div>
-                            <a href="${googleSearch}" target="_blank" class="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold flex items-center gap-1 transition">
-                                Explore <i data-lucide="external-link" class="w-3 h-3"></i>
-                            </a>
+                        <div class="flex items-center gap-3">
+                            <span class="font-extrabold text-slate-900 dark:text-white">${formatCurrency(d.price)}/meal</span>
+                            <button data-id="${d.id}" class="delete-dining-btn text-slate-400 hover:text-rose-500"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
                         </div>
                     </div>
                 `;
             }).join('');
 
+            document.querySelectorAll('.delete-dining-btn').forEach(b => {
+                b.addEventListener('click', () => {
+                    const id = b.getAttribute('data-id');
+                    tripState.customDining = tripState.customDining.filter(d => d.id !== id);
+                    saveToLocalStorage();
+                    renderCustomDining();
+                });
+            });
             lucide.createIcons();
         }
 
-        function calculateAndRender() {
-            const days = getNormalizedDays();
-            const travelers = state.travelers;
+        function renderSavings() {
+            const { grandTotalTrip } = calculateTotals();
+            const needed = Math.max(0, grandTotalTrip - tripState.currentSavings);
+            const monthly = needed / tripState.savingsMonths;
+            const daily = needed / (tripState.savingsMonths * 30.4);
 
-            const dailyPerPerson = state.customDaily.acc + state.customDaily.food + state.customDaily.trans + state.customDaily.act;
-            const dailyBufferPerPerson = dailyPerPerson * state.bufferPercent;
-            const totalDailyPerPerson = dailyPerPerson + dailyBufferPerPerson;
-
-            const totalPerPerson = (totalDailyPerPerson * days) + state.flightCost + state.fixedCost;
-            const grandTotal = totalPerPerson * travelers;
-
-            // Update Top KPI Cards
-            document.getElementById('total-budget-card').textContent = formatCurrency(grandTotal);
-            document.getElementById('per-person-card').textContent = formatCurrency(totalPerPerson);
-            document.getElementById('daily-person-card').textContent = `${formatCurrency(totalDailyPerPerson)}/d`;
-
-            // Render Cost Summary Table
-            renderSummaryTable(days, travelers);
-
-            // Update Savings Tracker
-            const remainingToSave = Math.max(0, grandTotal - state.currentSavings);
-            const monthlyTarget = remainingToSave / state.monthsToSave;
-            const dailyTarget = remainingToSave / (state.monthsToSave * 30.4);
-
-            document.getElementById('remaining-savings-total').textContent = formatCurrency(remainingToSave);
-            document.getElementById('monthly-savings-target').textContent = `${formatCurrency(monthlyTarget)} / mo`;
-            document.getElementById('daily-savings-target').textContent = `${formatCurrency(dailyTarget)} / day`;
-
-            updateChart(totalDailyPerPerson, days, travelers);
+            document.getElementById('savings-needed').textContent = formatCurrency(needed);
+            document.getElementById('savings-monthly').textContent = `${formatCurrency(monthly)} / mo`;
+            document.getElementById('savings-daily').textContent = `${formatCurrency(daily)} / day`;
         }
 
-        function renderSummaryTable(days, travelers) {
-            const tbody = document.getElementById('cost-summary-tbody');
-            const rows = [
-                { name: 'Accommodation', daily: state.customDaily.acc, fixed: 0 },
-                { name: 'Food & Dining', daily: state.customDaily.food, fixed: 0 },
-                { name: 'Local Transport', daily: state.customDaily.trans, fixed: 0 },
-                { name: 'Activities & Tours', daily: state.customDaily.act, fixed: 0 },
-                { name: 'Emergency Buffer', daily: (state.customDaily.acc + state.customDaily.food + state.customDaily.trans + state.customDaily.act) * state.bufferPercent, fixed: 0 },
-                { name: 'Flights / Long Distance Transit', daily: 0, fixed: state.flightCost },
-                { name: 'Insurance & Visas', daily: 0, fixed: state.fixedCost }
-            ];
+        function renderChecklist() {
+            const container = document.getElementById('checklist-items');
+            container.innerHTML = CHECKLIST_DEFAULT.map(item => `
+                <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-100/60 dark:bg-slate-800/40 hover:bg-slate-100 cursor-pointer">
+                    <input type="checkbox" data-id="${item.id}" ${tripState.checklist[item.id] ? 'checked' : ''} class="checklist-check text-sky-500 rounded">
+                    <span class="text-slate-700 dark:text-slate-300 font-medium">${item.label}</span>
+                </label>
+            `).join('');
 
-            tbody.innerHTML = rows.map(r => {
-                const perPersonTotal = (r.daily * days) + r.fixed;
-                const groupTotal = perPersonTotal * travelers;
-                return `
-                    <tr>
-                        <td class="py-2 px-3 font-medium text-slate-800 dark:text-slate-200">${r.name}</td>
-                        <td class="py-2 px-3 text-right text-slate-500">${r.daily > 0 ? formatCurrency(r.daily) : '-'}</td>
-                        <td class="py-2 px-3 text-right font-medium">${formatCurrency(perPersonTotal)}</td>
-                        <td class="py-2 px-3 text-right font-extrabold text-slate-900 dark:text-white">${formatCurrency(groupTotal)}</td>
-                    </tr>
-                `;
-            }).join('');
+            document.querySelectorAll('.checklist-check').forEach(cb => {
+                cb.addEventListener('change', (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    tripState.checklist[id] = e.target.checked;
+                    saveToLocalStorage();
+                    updateChecklistCounter();
+                });
+            });
+
+            updateChecklistCounter();
         }
 
-        function formatCurrency(val) {
-            const symbol = CURRENCIES[state.currency].symbol;
-            return `${symbol}${Math.round(val).toLocaleString()}`;
+        function updateChecklistCounter() {
+            const checked = Object.values(tripState.checklist).filter(Boolean).length;
+            document.getElementById('checklist-counter').textContent = `${checked}/${CHECKLIST_DEFAULT.length} Done`;
         }
 
         function initChart() {
-            const ctx = document.getElementById('budgetChart').getContext('2d');
+            const ctx = document.getElementById('multiStopChart').getContext('2d');
             chartInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Accommodation', 'Food & Dining', 'Transport', 'Activities', 'Buffer', 'Flights & Visas'],
+                    labels: [],
                     datasets: [{
-                        data: [70, 35, 15, 25, 15, 50],
-                        backgroundColor: [
-                            '#0ea5e9', // Sky 500
-                            '#10b981', // Emerald 500
-                            '#f59e0b', // Amber 500
-                            '#a855f7', // Purple 500
-                            '#f43f5e', // Rose 500
-                            '#6366f1'  // Indigo 500
-                        ],
-                        borderWidth: 0,
-                        hoverOffset: 6
+                        data: [],
+                        backgroundColor: ['#0ea5e9', '#10b981', '#f59e0b', '#a855f7', '#f43f5e', '#6366f1'],
+                        borderWidth: 0
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return ` ${context.label}: ${formatCurrency(context.raw || 0)}`;
-                                }
-                            }
-                        }
+                        legend: { display: false }
                     },
-                    cutout: '70%'
+                    cutout: '68%'
                 }
             });
         }
 
-        function updateChart(dailyPerPerson, days, travelers) {
+        function renderChart() {
             if (!chartInstance) return;
 
-            const accTotal = state.customDaily.acc * days * travelers;
-            const foodTotal = state.customDaily.food * days * travelers;
-            const transTotal = state.customDaily.trans * days * travelers;
-            const actTotal = state.customDaily.act * days * travelers;
-            const bufferTotal = (dailyPerPerson * state.bufferPercent) * days * travelers;
-            const fixedTotal = (state.flightCost + state.fixedCost) * travelers;
+            const { stopSummaries } = calculateTotals();
 
-            chartInstance.data.datasets[0].data = [
-                accTotal,
-                foodTotal,
-                transTotal,
-                actTotal,
-                bufferTotal,
-                fixedTotal
-            ];
+            if (chartMode === 'stop') {
+                chartInstance.data.labels = stopSummaries.map(s => s.name);
+                chartInstance.data.datasets[0].data = stopSummaries.map(s => s.groupTotal);
+            } else {
+                let accTotal = 0, foodTotal = 0, transTotal = 0, actTotal = 0, bufferTotal = 0;
+                stopSummaries.forEach(s => {
+                    accTotal += s.dailyAccTotal * tripState.travelers;
+                    foodTotal += s.dailyFoodTotal * tripState.travelers;
+                    transTotal += (s.dailyTransTotal + s.intercityTransit) * tripState.travelers;
+                    actTotal += s.dailyActTotal * tripState.travelers;
+                    bufferTotal += s.bufferTotal * tripState.travelers;
+                });
+                const fixedTotal = (tripState.globalFlight + tripState.globalVisa) * tripState.travelers;
+
+                chartInstance.data.labels = ['Stays', 'Dining', 'Transport', 'Activities', 'Buffer', 'Flights/Visas'];
+                chartInstance.data.datasets[0].data = [accTotal, foodTotal, transTotal, actTotal, bufferTotal, fixedTotal];
+            }
+
             chartInstance.update();
         }
 
-        function updateChecklistProgress() {
-            const checkedCount = Object.values(state.checklist).filter(Boolean).length;
-            const totalCount = CHECKLIST_ITEMS.length;
-            document.getElementById('checklist-progress').textContent = `${checkedCount} of ${totalCount} checked`;
-        }
-
-        function resetDefaults() {
-            state.destination = DESTINATIONS[0];
-            document.getElementById('destination-select').value = DESTINATIONS[0].id;
-            state.durationValue = 7;
-            document.getElementById('duration-input').value = 7;
-            state.durationUnit = 'days';
-            document.getElementById('duration-unit').value = 'days';
-            state.travelers = 2;
-            document.getElementById('travelers-select').value = 2;
-            state.style = 'moderate';
-            
-            document.querySelectorAll('#style-toggle-group .style-btn').forEach(b => {
-                b.className = 'style-btn px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center gap-1 transition text-slate-600 dark:text-slate-400 hover:border-sky-500';
-            });
-            document.querySelectorAll('#style-toggle-group .style-btn')[1].className = 'style-btn px-3 py-2.5 rounded-xl border-2 border-sky-500 bg-sky-500/10 text-sky-600 dark:text-sky-400 flex flex-col items-center justify-center gap-1 transition font-semibold';
-
-            state.monthsToSave = 6;
-            document.getElementById('months-to-save').value = 6;
-            state.currentSavings = 500;
-            document.getElementById('current-savings').value = 500;
-
-            updateEstimatesFromDestination();
-            calculateAndRender();
+        function formatCurrency(val) {
+            const symbol = CURRENCIES[tripState.currency].symbol;
+            return `${symbol}${Math.round(val).toLocaleString()}`;
         }
 
         function exportJSON() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `wanderbudget_${state.destination.id}_${state.durationValue}${state.durationUnit}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tripState, null, 2));
+            const dl = document.createElement('a');
+            dl.setAttribute("href", dataStr);
+            dl.setAttribute("download", `wanderbudget_${tripState.title.toLowerCase().replace(/\s+/g, '_')}.json`);
+            document.body.appendChild(dl);
+            dl.click();
+            dl.remove();
+        }
+
+        function importJSON(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const imported = JSON.parse(evt.target.result);
+                    if (imported.stops && Array.isArray(imported.stops)) {
+                        tripState = imported;
+                        saveToLocalStorage();
+                        location.reload();
+                    } else {
+                        alert("Invalid WanderBudget JSON format.");
+                    }
+                } catch(err) {
+                    alert("Could not parse uploaded JSON file.");
+                }
+            };
+            reader.readAsText(file);
         }
     </script>
 </body>
