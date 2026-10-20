@@ -129,7 +129,13 @@
                                 <option value="rome">Rome, Italy</option>
                                 <option value="london">London, UK</option>
                                 <option value="sydney">Sydney, Australia</option>
+                                <option value="custom" class="font-bold text-brand-600">+ Add Any City in the World...</option>
                             </select>
+
+                            <!-- Custom City Input Box (Shown when "+ Add Any City" is selected) -->
+                            <div id="customCityContainer" class="hidden mt-2">
+                                <input type="text" id="customCityName" placeholder="Type city name (e.g. Barcelona, Seoul)" oninput="saveAndRecalculate()" class="w-full bg-slate-50 border border-brand-500 rounded-xl px-3 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-brand-500">
+                            </div>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Sub-Location / District</label>
@@ -508,6 +514,16 @@
                     { name: "Katz's Delicatessen", type: "Classic Deli", price: 28, desc: "Famous pastrami on rye sandwich institution." },
                     { name: "Eleven Madison Park", type: "Fine Dining", price: 160, desc: "Three Michelin-starred plant-based fine dining." }
                 ]
+            },
+            custom: {
+                name: 'Custom City',
+                flight: 250,
+                baseHotel: { budget: 30, moderate: 85, luxury: 220 },
+                baseFood: { budget: 15, moderate: 35, luxury: 85 },
+                transit: 8,
+                activities: 15,
+                hotels: [],
+                dining: []
             }
         };
 
@@ -534,6 +550,7 @@
             const state = {
                 currentMode,
                 selectedCity: document.getElementById('singleCitySelect').value,
+                customCityName: document.getElementById('customCityName').value,
                 subLocation: document.getElementById('singleSubLocation').value,
                 duration: document.getElementById('singleDuration').value,
                 durationUnit: document.getElementById('singleDurationUnit').value,
@@ -560,6 +577,7 @@
                 const data = JSON.parse(raw);
                 if (data.currentMode) setMode(data.currentMode);
                 if (data.selectedCity) document.getElementById('singleCitySelect').value = data.selectedCity;
+                if (data.customCityName) document.getElementById('customCityName').value = data.customCityName;
                 if (data.subLocation) document.getElementById('singleSubLocation').value = data.subLocation;
                 if (data.duration) document.getElementById('singleDuration').value = data.duration;
                 if (data.durationUnit) document.getElementById('singleDurationUnit').value = data.durationUnit;
@@ -594,6 +612,14 @@
 
         function handleSingleCityChange() {
             const cityKey = document.getElementById('singleCitySelect').value;
+            const customContainer = document.getElementById('customCityContainer');
+
+            if (cityKey === 'custom') {
+                customContainer.classList.remove('hidden');
+            } else {
+                customContainer.classList.add('hidden');
+            }
+
             const style = document.getElementById('singleStyle').value;
             const city = cityDatabase[cityKey] || cityDatabase['paris'];
 
@@ -642,223 +668,3 @@
             const totalFlight = baseFlight * rate * travelers;
             const totalHotel = baseHotel * rate * days;
             const totalFood = baseFood * rate * days * travelers;
-            const totalTransit = baseTransit * rate * days * travelers;
-            const totalActivities = baseActivities * rate * days * travelers;
-
-            const subtotal = totalFlight + totalHotel + totalFood + totalTransit + totalActivities;
-            const bufferAmount = subtotal * bufferPct;
-            const grandTotal = subtotal + bufferAmount;
-
-            const perPersonTotal = grandTotal / travelers;
-            const perPersonDaily = perPersonTotal / days;
-
-            document.getElementById('displayTotalCost').textContent = `${sym}${Math.round(grandTotal).toLocaleString()}`;
-            document.getElementById('displayDurationText').textContent = `${days} Days Trip`;
-            document.getElementById('displayPerPerson').textContent = `${sym}${Math.round(perPersonTotal).toLocaleString()}`;
-            document.getElementById('displayDailyPerPerson').textContent = `${sym}${Math.round(perPersonDaily).toLocaleString()}`;
-            document.getElementById('bufferExplanation').textContent = `Includes ${sym}${Math.round(bufferAmount).toLocaleString()} safety cushion (${bufferPct*100}%) for unforeseen transit, medical expenses, or rate changes.`;
-
-            updateChart([totalFlight, totalHotel, totalFood, totalTransit, totalActivities, bufferAmount], sym);
-            renderBreakdownTable(days, travelers, rate, sym, baseFlight, baseHotel, baseFood, baseTransit, baseActivities, bufferAmount);
-            renderHotelsAndDining(curr, rate, sym);
-            calculateSavingsGoal();
-        }
-
-        function updateChart(dataValues, sym) {
-            const ctx = document.getElementById('budgetChart').getContext('2d');
-            if (myChart) myChart.destroy();
-
-            myChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Flights', 'Stay', 'Food', 'Transit', 'Activities', 'Buffer'],
-                    datasets: [{
-                        data: dataValues,
-                        backgroundColor: ['#3b82f6', '#14b8a6', '#f59e0b', '#8b5cf6', '#ec4899', '#64748b'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { boxWidth: 10, color: '#94a3b8', font: { size: 10 } } }
-                    },
-                    cutout: '70%'
-                }
-            });
-        }
-
-        function renderBreakdownTable(days, travelers, rate, sym, flight, hotel, food, transit, activities, buffer) {
-            const tbody = document.getElementById('breakdownTableBody');
-            const items = [
-                { name: 'Flights / Long Transit', daily: '-', totalPP: flight * rate, groupTotal: flight * rate * travelers },
-                { name: 'Accommodation', daily: (hotel * rate) / travelers, totalPP: (hotel * rate * days) / travelers, groupTotal: hotel * rate * days },
-                { name: 'Food & Meals', daily: food * rate, totalPP: food * rate * days, groupTotal: food * rate * days * travelers },
-                { name: 'Local Transport', daily: transit * rate, totalPP: transit * rate * days, groupTotal: transit * rate * days * travelers },
-                { name: 'Activities & Sightseeing', daily: activities * rate, totalPP: activities * rate * days, groupTotal: activities * rate * days * travelers },
-                { name: 'Emergency Buffer', daily: '-', totalPP: buffer / travelers, groupTotal: buffer }
-            ];
-
-            tbody.innerHTML = items.map(item => `
-                <tr class="hover:bg-slate-50 transition">
-                    <td class="p-3 font-semibold text-slate-800">${item.name}</td>
-                    <td class="p-3">${item.daily === '-' ? '-' : sym + Math.round(item.daily)}</td>
-                    <td class="p-3 font-semibold">${sym}${Math.round(item.totalPP)}</td>
-                    <td class="p-3 font-bold text-slate-900">${sym}${Math.round(item.groupTotal)}</td>
-                </tr>
-            `).join('');
-        }
-
-        function renderHotelsAndDining(curr, rate, sym) {
-            const cityKey = document.getElementById('singleCitySelect').value;
-            const city = cityDatabase[cityKey] || cityDatabase['paris'];
-
-            const hotelGrid = document.getElementById('hotelOptionsGrid');
-            hotelGrid.innerHTML = city.hotels.map(h => `
-                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col justify-between space-y-3">
-                    <div>
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full">${h.type}</span>
-                        <h4 class="font-bold text-slate-800 mt-2">${h.name}</h4>
-                        <p class="text-xs text-slate-500 mt-1">${h.desc}</p>
-                    </div>
-                    <div class="pt-2 border-t border-slate-200 flex justify-between items-center">
-                        <span class="text-xs text-slate-400">Nightly Rate</span>
-                        <span class="font-extrabold text-slate-800 text-sm">${sym}${Math.round(h.rate * rate)}</span>
-                    </div>
-                </div>
-            `).join('');
-
-            const diningGrid = document.getElementById('diningOptionsGrid');
-            diningGrid.innerHTML = city.dining.map(d => `
-                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col justify-between space-y-3">
-                    <div>
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">${d.type}</span>
-                        <h4 class="font-bold text-slate-800 mt-2">${d.name}</h4>
-                        <p class="text-xs text-slate-500 mt-1">${d.desc}</p>
-                    </div>
-                    <div class="pt-2 border-t border-slate-200 flex justify-between items-center">
-                        <span class="text-xs text-slate-400">Avg Meal / Person</span>
-                        <span class="font-extrabold text-slate-800 text-sm">${sym}${Math.round(d.price * rate)}</span>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function calculateSavingsGoal() {
-            const curr = document.getElementById('currencySelect').value;
-            const sym = currencySymbols[curr] || '£';
-            
-            const rawTotalText = document.getElementById('displayTotalCost').textContent;
-            const totalCost = parseFloat(rawTotalText.replace(/[^0-9.]/g, '')) || 0;
-            
-            const months = parseFloat(document.getElementById('savingsMonths').value) || 1;
-            const currentSaved = parseFloat(document.getElementById('savingsCurrent').value) || 0;
-
-            const remaining = Math.max(0, totalCost - currentSaved);
-            const monthlyNeed = remaining / months;
-
-            document.getElementById('displayMonthlySavings').textContent = `${sym}${Math.round(monthlyNeed).toLocaleString()} / mo`;
-        }
-
-        function setActiveTab(tabId) {
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.className = "tab-btn px-6 py-4 font-bold text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center gap-2 shrink-0";
-            });
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
-
-            const activeBtn = document.getElementById(`tabBtn-${tabId}`);
-            const activeContent = document.getElementById(`tabContent-${tabId}`);
-            
-            activeBtn.className = "tab-btn px-6 py-4 font-bold text-sm text-brand-600 border-b-2 border-brand-500 bg-white flex items-center gap-2 shrink-0";
-            activeContent.classList.remove('hidden');
-        }
-
-        function renderMultiCityList() {
-            const container = document.getElementById('multiCityList');
-            container.innerHTML = multiStops.map((stop, idx) => `
-                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col sm:flex-row items-center gap-4">
-                    <span class="w-6 h-6 rounded-full bg-brand-500 text-white font-bold text-xs flex items-center justify-center shrink-0">${idx + 1}</span>
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full">
-                        <select onchange="updateMultiStop(${stop.id}, 'city', this.value)" class="bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-semibold">
-                            <option value="paris" ${stop.city==='paris'?'selected':''}>Paris</option>
-                            <option value="tokyo" ${stop.city==='tokyo'?'selected':''}>Tokyo</option>
-                            <option value="bali" ${stop.city==='bali'?'selected':''}>Bali</option>
-                            <option value="nyc" ${stop.city==='nyc'?'selected':''}>New York</option>
-                        </select>
-                        <input type="text" value="${stop.subLoc}" placeholder="Neighborhood" oninput="updateMultiStop(${stop.id}, 'subLoc', this.value)" class="bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs">
-                        <div class="flex items-center gap-1">
-                            <input type="number" value="${stop.nights}" min="1" oninput="updateMultiStop(${stop.id}, 'nights', this.value)" class="w-16 bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-semibold">
-                            <span class="text-xs text-slate-500 font-medium">Nights</span>
-                        </div>
-                    </div>
-
-                    <button onclick="removeMultiCityStop(${stop.id})" class="text-red-500 hover:text-red-700 p-1">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                    </button>
-                </div>
-            `).join('');
-            lucide.createIcons();
-            saveAndRecalculate();
-        }
-
-        function addMultiCityStop() {
-            multiStops.push({ id: Date.now(), city: 'paris', subLoc: 'Center', nights: 3, style: 'moderate' });
-            renderMultiCityList();
-        }
-
-        function removeMultiCityStop(id) {
-            if (multiStops.length <= 1) return;
-            multiStops = multiStops.filter(s => s.id !== id);
-            renderMultiCityList();
-        }
-
-        function updateMultiStop(id, field, value) {
-            const stop = multiStops.find(s => s.id === id);
-            if (stop) {
-                stop[field] = value;
-                saveAndRecalculate();
-            }
-        }
-
-        function promptAddCustomHotel() {
-            const name = prompt("Enter Hotel or Stay Name:");
-            if (!name) return;
-            const rate = parseFloat(prompt("Enter Nightly Rate (in GBP £):") || "100");
-            const cityKey = document.getElementById('singleCitySelect').value;
-            cityDatabase[cityKey].hotels.unshift({
-                name: name,
-                type: "Custom Choice",
-                rate: rate,
-                desc: "User added custom hotel recommendation."
-            });
-            updateCalculations();
-        }
-
-        function promptAddCustomDining() {
-            const name = prompt("Enter Restaurant Name:");
-            if (!name) return;
-            const price = parseFloat(prompt("Enter Avg Meal Price per person (in GBP £):") || "25");
-            const cityKey = document.getElementById('singleCitySelect').value;
-            cityDatabase[cityKey].dining.unshift({
-                name: name,
-                type: "Custom Spot",
-                price: price,
-                desc: "User added custom restaurant."
-            });
-            updateCalculations();
-        }
-
-        function exportItineraryJSON() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(localStorage.getItem('wanderbudget_data') || '{}');
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "wanderbudget_trip_plan.json");
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        }
-    </script>
-</body>
-</html>
