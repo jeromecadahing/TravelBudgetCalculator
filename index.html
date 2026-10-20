@@ -319,6 +319,12 @@
                 <button onclick="setActiveTab('breakdown')" id="tabBtn-breakdown" class="tab-btn px-6 py-4 font-bold text-sm text-brand-600 border-b-2 border-brand-500 bg-white flex items-center gap-2 shrink-0">
                     <i data-lucide="list-checks" class="w-4 h-4"></i> What Budget Covers & Itemized Details
                 </button>
+                <button onclick="setActiveTab('activities')" id="tabBtn-activities" class="tab-btn px-6 py-4 font-bold text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center gap-2 shrink-0">
+                    <i data-lucide="ticket" class="w-4 h-4"></i> Attractions & Activities Breakdown
+                </button>
+                <button onclick="setActiveTab('transit')" id="tabBtn-transit" class="tab-btn px-6 py-4 font-bold text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center gap-2 shrink-0">
+                    <i data-lucide="bus" class="w-4 h-4"></i> Flights & Transit Cards
+                </button>
                 <button onclick="setActiveTab('hotels')" id="tabBtn-hotels" class="tab-btn px-6 py-4 font-bold text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center gap-2 shrink-0">
                     <i data-lucide="hotel" class="w-4 h-4"></i> Hotels & Stays (10 Options)
                 </button>
@@ -403,6 +409,37 @@
                     </div>
                 </div>
 
+                <!-- TAB: ATTRACTIONS & ACTIVITIES BREAKDOWN -->
+                <div id="tabContent-activities" class="tab-content hidden space-y-6">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-800">Itemized Attractions, Sightseeing & Activity Entry Fees</h3>
+                            <p class="text-xs text-slate-500">Specific top attractions in your destination with ticket prices and photo links</p>
+                        </div>
+                        <button onclick="promptAddCustomActivity()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg border border-slate-300">
+                            + Add Custom Activity
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="activitiesOptionsGrid">
+                        <!-- Injected Activity Cards -->
+                    </div>
+                </div>
+
+                <!-- TAB: FLIGHTS & TRANSIT CARDS -->
+                <div id="tabContent-transit" class="tab-content hidden space-y-6">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-800">Transportation & Flight Details</h3>
+                            <p class="text-xs text-slate-500">Breakdown of city pass options, airport transfers, and flight ticket searches</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="transitOptionsGrid">
+                        <!-- Injected Transit Cards -->
+                    </div>
+                </div>
+
                 <!-- TAB 2: HOTELS -->
                 <div id="tabContent-hotels" class="tab-content hidden space-y-6">
                     <div class="flex justify-between items-center">
@@ -473,7 +510,7 @@
         const exchangeRates = { GBP: 1, USD: 1.28, EUR: 1.18, JPY: 198, AUD: 1.92, CAD: 1.74, INR: 106 };
         const currencySymbols = { GBP: '£', USD: '$', EUR: '€', JPY: '¥', AUD: 'A$', CAD: 'C$', INR: '₹' };
 
-        // Comprehensive City Database with 10 Stays and 10 Dining Options Each
+        // Comprehensive City Database with 10 Stays, 10 Dining Options, Attractions & Transit Items Each
         let cityDatabase = {
             rome: {
                 name: 'Rome, Italy',
@@ -482,6 +519,19 @@
                 baseFood: { budget: 18, moderate: 40, luxury: 95 },
                 transit: 7,
                 activities: 16,
+                activitiesList: [
+                    { name: "Colosseum & Roman Forum", type: "Historical Sight", price: 18, desc: "Priority entrance ticket & arena access." },
+                    { name: "Vatican Museums & Sistine Chapel", type: "Museum / Gallery", price: 22, desc: "Skip-the-line ticket to Vatican art collections." },
+                    { name: "Borghese Gallery", type: "Art Gallery", price: 15, desc: "Bernini sculptures and Caravaggio paintings." },
+                    { name: "Pantheon Entry", type: "Historic Landmark", price: 5, desc: "Entry ticket to Rome's preserved ancient temple." },
+                    { name: "Catacombs of St. Callixtus", type: "Guided Tour", price: 10, desc: "Underground guided subterranean tour." },
+                    { name: "Castel Sant'Angelo", type: "Castle & Museum", price: 13, desc: "Historic fortress overlooking Tiber River." }
+                ],
+                transitList: [
+                    { name: "Round-Trip Flight / Long Transit", type: "Long Distance", price: 130, desc: "Average economy round-trip flight per person." },
+                    { name: "Atac 3-Day Metro & Bus Pass", type: "Local Transit Pass", price: 18, desc: "Unlimited rides on Rome metro, trams & public buses." },
+                    { name: "Leonardo Express Airport Train", type: "Airport Rail Transfer", price: 14, desc: "Direct non-stop train from Fiumicino Airport to Termini." }
+                ],
                 hotels: [
                     { category: 'budget', name: "YellowSquare Rome", stars: 2, rating: "4.7 ★★★★★", type: "Budget Hostel", rate: 30, desc: "Fun social hostel near Termini." },
                     { category: 'budget', name: "The RomeHello", stars: 2, rating: "4.6 ★★★★★", type: "Budget Hostel", rate: 32, desc: "Modern design hostel with lively bar." },
@@ -514,6 +564,19 @@
                 baseFood: { budget: 20, moderate: 45, luxury: 110 },
                 transit: 10,
                 activities: 18,
+                activitiesList: [
+                    { name: "Louvre Museum Entry", type: "Art Museum", price: 17, desc: "Timed entry ticket to see Mona Lisa & masterpieces." },
+                    { name: "Eiffel Tower Summit Elevator", type: "Landmark View", price: 28, desc: "Elevator access ticket to the top summit level." },
+                    { name: "Musée d'Orsay", type: "Impressionist Museum", price: 16, desc: "Impressionist gallery ticket inside railway station." },
+                    { name: "Sainte-Chapelle Stained Glass", type: "Historic Chapel", price: 12, desc: "Gothic stained glass chapel on Île de la Cité." },
+                    { name: "Seine River Dinner Sightseeing Cruise", type: "Boat Tour", price: 25, desc: "1-hour evening boat cruise along the Seine." },
+                    { name: "Palace of Versailles Pass", type: "Palace Tour", price: 21, desc: "Entry to Palace hall of mirrors & gardens." }
+                ],
+                transitList: [
+                    { name: "Round-Trip Flight / Long Transit", type: "Long Distance", price: 120, desc: "Average economy flight per traveler." },
+                    { name: "Paris Visite Metro Pass (Zone 1-3)", type: "Local Transit Pass", price: 15, desc: "Unlimited rides on RATP metro, bus and RER." },
+                    { name: "RER B Airport Express (CDG to Paris)", type: "Airport Rail", price: 12, desc: "Direct rail line between Charles de Gaulle & city center." }
+                ],
                 hotels: [
                     { category: 'budget', name: "St Christopher's Canal", stars: 2, rating: "4.4 ★★★★☆", type: "Hostel", rate: 35, desc: "Modern canal-side hostel." },
                     { category: 'budget', name: "The People - Paris Belleville", stars: 2, rating: "4.6 ★★★★★", type: "Eco Hostel", rate: 38, desc: "Trendy community hostel with rooftop." },
@@ -546,6 +609,18 @@
                 baseFood: { budget: 22, moderate: 50, luxury: 120 },
                 transit: 12,
                 activities: 20,
+                activitiesList: [
+                    { name: "Tower of London & Crown Jewels", type: "Historic Castle", price: 33, desc: "Entry ticket to fortress and medieval towers." },
+                    { name: "The London Eye Standard Ticket", type: "Observation Wheel", price: 36, desc: "30-minute rotation over London skyline." },
+                    { name: "Westminster Abbey", type: "Historic Abbey", price: 27, desc: "Royal coronation church guided audio tour." },
+                    { name: "British Museum Guided Highlights", type: "Museum Tour", price: 18, desc: "Special exhibit pass & expert audio guide." },
+                    { name: "St Paul's Cathedral Dome", type: "Cathedral Tour", price: 23, desc: "Climb Whispering Gallery and stone dome view." }
+                ],
+                transitList: [
+                    { name: "Round-Trip Flight / Long Transit", type: "Long Distance", price: 50, desc: "Domestic / European flight or Eurostar train." },
+                    { name: "Oyster / Contactless Daily Cap (Zone 1-2)", type: "Local Transit Cap", price: 8, desc: "Maximum daily cap on Tube, Overground & buses." },
+                    { name: "Heathrow Express Train Ticket", type: "Airport Rail", price: 25, desc: "Fast 15-minute train between Heathrow & Paddington." }
+                ],
                 hotels: [
                     { category: 'budget', name: "Wombat's City Hostel", stars: 2, rating: "4.6 ★★★★★", type: "Hostel", rate: 40, desc: "Popular hostel near Tower Bridge." },
                     { category: 'budget', name: "Clink78", stars: 2, rating: "4.4 ★★★★☆", type: "Design Hostel", rate: 42, desc: "Converted Victorian courthouse hostel." },
@@ -578,6 +653,16 @@
                 baseFood: { budget: 10, moderate: 28, luxury: 80 },
                 transit: 5,
                 activities: 14,
+                activitiesList: [
+                    { name: "Shanghai Tower 118th Floor Observation Deck", type: "Observation Deck", price: 25, desc: "Panoramic deck on world's 2nd tallest building." },
+                    { name: "Yu Garden & Bazaar", type: "Historic Garden", price: 8, desc: "Ming dynasty traditional garden & teahouses." },
+                    { name: "Huangpu River Night Cruise", type: "Boat Cruise", price: 20, desc: "Evening skyline boat tour along Bund." }
+                ],
+                transitList: [
+                    { name: "Round-Trip Flight / Long Transit", type: "Long Distance", price: 520, desc: "International long-haul flight ticket." },
+                    { name: "Shanghai Metro Daily Pass", type: "Local Transit", price: 3, desc: "Unlimited 24-hour subway ride pass." },
+                    { name: "Maglev High-Speed Train Ticket", type: "Airport Transit", price: 6, desc: "World's fastest commercial magnetic train from PVG." }
+                ],
                 hotels: [
                     { category: 'budget', name: "The Captain Hostel Bund", stars: 2, rating: "4.3 ★★★★☆", type: "Hostel", rate: 22, desc: "Nautical-themed hostel with Bund rooftop." },
                     { category: 'budget', name: "Meego Youth Hostel", stars: 2, rating: "4.4 ★★★★☆", type: "Hostel", rate: 25, desc: "Social backpacker hostel in downtown." },
@@ -610,6 +695,17 @@
                 baseFood: { budget: 18, moderate: 40, luxury: 100 },
                 transit: 8,
                 activities: 15,
+                activitiesList: [
+                    { name: "teamLab Planets TOKYO", type: "Digital Art", price: 24, desc: "Immersive body-immersive digital art museum." },
+                    { name: "Tokyo Skytree Tembo Deck", type: "Observation Tower", price: 18, desc: "350m high deck views across Tokyo metropolis." },
+                    { name: "Shibuya Sky Deck", type: "Open Air View", price: 14, desc: "360-degree open-air rooftop above Shibuya Crossing." },
+                    { name: "Ghibli Museum Mitaka", type: "Anime Museum", price: 8, desc: "Studio Ghibli animation exhibit." }
+                ],
+                transitList: [
+                    { name: "Round-Trip Flight / Long Transit", type: "Long Distance", price: 650, desc: "Long-haul flight ticket to Narita / Haneda." },
+                    { name: "Tokyo Subway 72-Hour Pass", type: "Local Metro Pass", price: 11, desc: "Unlimited rides on all Tokyo Metro & Toei subway lines." },
+                    { name: "N'EX Narita Express Train", type: "Airport Express", price: 21, desc: "Direct express train from Narita Airport to Shinjuku." }
+                ],
                 hotels: [
                     { category: 'budget', name: "Nui. Hostel & Bar", stars: 2, rating: "4.6 ★★★★★", type: "Hostel", rate: 30, desc: "Cozy riverside hostel lounge." },
                     { category: 'budget', name: "Imano Tokyo Hostel", stars: 2, rating: "4.5 ★★★★★", type: "Hostel", rate: 32, desc: "Shinjuku cultural backpacker hub." },
@@ -692,6 +788,16 @@
                     baseFood: { budget: 18, moderate: 40, luxury: 90 },
                     transit: 8,
                     activities: 16,
+                    activitiesList: [
+                        { name: cleanName + " City Highlights Walking Tour", type: "Guided Tour", price: 18, desc: "2-hour walking tour of top landmarks." },
+                        { name: cleanName + " National Museum", type: "Museum Pass", price: 15, desc: "Standard adult museum entrance." },
+                        { name: cleanName + " Panoramic Tower View", type: "Observation Deck", price: 12, desc: "City view skyline ticket." }
+                    ],
+                    transitList: [
+                        { name: "Round-Trip Flight / Long Transit", type: "Long Distance", price: 300, desc: "Estimated travel ticket cost." },
+                        { name: cleanName + " Unlimited Public Transit Pass", type: "City Transit", price: 8, desc: "Daily bus and metro ride pass." },
+                        { name: cleanName + " Airport Express Bus / Train", type: "Airport Transfer", price: 10, desc: "Express transfer between airport and center." }
+                    ],
                     hotels: [
                         { category: 'budget', name: cleanName + " Central Hostel", stars: 2, rating: "4.4 ★★★★☆", type: "Budget Stay", rate: 35, desc: "Clean central backpacker stay." },
                         { category: 'budget', name: cleanName + " Eco Inn", stars: 2, rating: "4.5 ★★★★★", type: "B&B Stay", rate: 42, desc: "Cozy local bed & breakfast." },
@@ -890,6 +996,7 @@
             updateChart([totalFlight, totalHotel, totalFood, totalTransit, totalActivities, bufferAmount], sym);
             renderBreakdownTable(days, travelers, rate, sym, baseFlight, baseHotel, baseFood, baseTransit, baseActivities, bufferAmount);
             renderHotelsAndDining(curr, rate, sym);
+            renderActivitiesAndTransit(curr, rate, sym);
             calculateSavingsGoal();
         }
 
@@ -937,6 +1044,60 @@
                     <td class="p-3 font-bold text-slate-900">${sym}${Math.round(item.groupTotal)}</td>
                 </tr>
             `).join('');
+        }
+
+        function renderActivitiesAndTransit(curr, rate, sym) {
+            const city = cityDatabase[currentSelectedCityKey] || cityDatabase['rome'];
+            
+            // Activities tab render
+            const activitiesGrid = document.getElementById('activitiesOptionsGrid');
+            if (city.activitiesList && city.activitiesList.length > 0) {
+                activitiesGrid.innerHTML = city.activitiesList.map(a => {
+                    const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(a.name + " " + city.name + " tickets photos")}&tbm=isch`;
+                    return `
+                        <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col justify-between space-y-3">
+                            <div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-teal-700 bg-teal-100 px-2 py-0.5 rounded-full">${a.type}</span>
+                                    <span class="font-extrabold text-slate-800 text-sm">${sym}${Math.round(a.price * rate)}</span>
+                                </div>
+                                <h4 class="font-bold text-slate-800 mt-2">${a.name}</h4>
+                                <p class="text-xs text-slate-500 mt-1">${a.desc}</p>
+                            </div>
+                            <a href="${searchUrl}" target="_blank" class="w-full text-center block text-xs font-bold text-teal-700 hover:text-teal-800 bg-white border border-teal-300 py-1.5 rounded-lg hover:bg-teal-50 transition">
+                                🎟️ View Photos & Ticket Info
+                            </a>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                activitiesGrid.innerHTML = `<p class="col-span-3 text-xs text-slate-400 italic">No pre-populated attractions for this custom location. Click "+ Add Custom Activity" above to list your choices!</p>`;
+            }
+
+            // Transit tab render
+            const transitGrid = document.getElementById('transitOptionsGrid');
+            if (city.transitList && city.transitList.length > 0) {
+                transitGrid.innerHTML = city.transitList.map(t => {
+                    const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(t.name + " " + city.name + " routes tickets")}`;
+                    return `
+                        <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col justify-between space-y-3">
+                            <div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full">${t.type}</span>
+                                    <span class="font-extrabold text-slate-800 text-sm">${sym}${Math.round(t.price * rate)}</span>
+                                </div>
+                                <h4 class="font-bold text-slate-800 mt-2">${t.name}</h4>
+                                <p class="text-xs text-slate-500 mt-1">${t.desc}</p>
+                            </div>
+                            <a href="${searchUrl}" target="_blank" class="w-full text-center block text-xs font-bold text-blue-700 hover:text-blue-800 bg-white border border-blue-300 py-1.5 rounded-lg hover:bg-blue-50 transition">
+                                🚇 Check Transit Routes & Fares
+                            </a>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                transitGrid.innerHTML = `<p class="col-span-3 text-xs text-slate-400 italic">No pre-populated transit details for this custom location.</p>`;
+            }
         }
 
         function renderHotelsAndDining(curr, rate, sym) {
@@ -1085,6 +1246,21 @@
                 stop[field] = value;
                 saveAndRecalculate();
             }
+        }
+
+        function promptAddCustomActivity() {
+            const name = prompt("Enter Sight / Activity Name:");
+            if (!name) return;
+            const price = parseFloat(prompt("Enter Entrance / Ticket Price per person (in GBP £):") || "15");
+            const city = cityDatabase[currentSelectedCityKey] || cityDatabase['rome'];
+            if (!city.activitiesList) city.activitiesList = [];
+            city.activitiesList.unshift({
+                name: name,
+                type: "Custom Activity",
+                price: price,
+                desc: "User added custom attraction."
+            });
+            updateCalculations();
         }
 
         function promptAddCustomHotel() {
